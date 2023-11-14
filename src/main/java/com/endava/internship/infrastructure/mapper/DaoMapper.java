@@ -17,5 +17,7 @@ public interface DaoMapper {
 
     UserEntity map(User user);
 
+    User map(UserEntity user);
+
     RoleEntity map(Role role);
 }

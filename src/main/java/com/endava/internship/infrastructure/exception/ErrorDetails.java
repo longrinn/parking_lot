@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Getter
 @RequiredArgsConstructor
-public class ErrorDetails extends RuntimeException {
+public class ErrorDetails {
 
     private final LocalDate timeStamp;
     private final String message;

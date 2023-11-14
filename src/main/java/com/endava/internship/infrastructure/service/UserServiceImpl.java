@@ -8,12 +8,16 @@ import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.infrastructure.domain.Credentials;
 import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
+import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.infrastructure.security.JwtUtils;
 import com.endava.internship.infrastructure.security.UserDetailsImpl;
 import com.endava.internship.infrastructure.service.api.UserService;
 import com.endava.internship.web.dto.AuthenticationRequest;
 import com.endava.internship.web.dto.AuthenticationResponse;
 import com.endava.internship.web.dto.RegistrationRequest;
+import com.endava.internship.web.dto.UserUpdatedRoleResponse;
+import com.endava.internship.web.request.ChangeRoleRequest;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +29,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.endava.internship.infrastructure.util.ParkingLotConstants.ROLE_NOT_FOUND_ERROR_MESSAGE;
+import static com.endava.internship.infrastructure.util.ParkingLotConstants.USER_NOT_FOUND_ERROR_MESSAGE;
 import static java.util.Collections.singletonList;
 
 @Service
@@ -35,6 +41,7 @@ public class UserServiceImpl implements UserService {
 
     private final JwtUtils jwtUtils;
     private final DaoMapper daoMapper;
+    private final DtoMapper dtoMapper;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
@@ -96,5 +103,24 @@ public class UserServiceImpl implements UserService {
                 .role(userDetails.getAuthorities().toString().replace("[", "").replace("]", ""))
                 .jwt(jwt)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public UserUpdatedRoleResponse updateUserRole(ChangeRoleRequest changeRoleRequest) {
+
+        final UserEntity userEntity = userRepository.findById(changeRoleRequest.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(USER_NOT_FOUND_ERROR_MESSAGE, changeRoleRequest.getUserId())));
+
+        final RoleEntity newRole = roleRepository.findRoleEntityByName(changeRoleRequest.getNewRole())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(ROLE_NOT_FOUND_ERROR_MESSAGE, changeRoleRequest.getNewRole())
+                ));
+        userEntity.setRole(newRole);
+
+        final UserEntity userNewRole = userRepository.save(userEntity);
+        final User user = daoMapper.map(userNewRole);
+        return dtoMapper.map(user);
     }
 }
