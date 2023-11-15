@@ -2,7 +2,6 @@ package com.endava.internship.infrastructure.service;
 
 import com.endava.internship.dao.entity.UserEntity;
 import com.endava.internship.dao.repository.UserRepository;
-import com.endava.internship.infrastructure.security.service.UserDetailsServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
