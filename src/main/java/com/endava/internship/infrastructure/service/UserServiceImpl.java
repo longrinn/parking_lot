@@ -3,10 +3,12 @@ package com.endava.internship.infrastructure.service;
 import com.endava.internship.dao.entity.CredentialsEntity;
 import com.endava.internship.dao.entity.RoleEntity;
 import com.endava.internship.dao.entity.UserEntity;
+import com.endava.internship.dao.repository.CredentialRepository;
 import com.endava.internship.dao.repository.RoleRepository;
 import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.infrastructure.domain.Credentials;
 import com.endava.internship.infrastructure.domain.User;
+import com.endava.internship.infrastructure.listeners.UserRoleChangeEmailListener;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.infrastructure.security.JwtUtils;
@@ -29,8 +31,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.endava.internship.infrastructure.util.ParkingLotConstants.ROLE_NOT_FOUND_ERROR_MESSAGE;
-import static com.endava.internship.infrastructure.util.ParkingLotConstants.USER_NOT_FOUND_ERROR_MESSAGE;
+import static com.endava.internship.infrastructure.util.ParkingLotConstants.*;
 import static java.util.Collections.singletonList;
 
 @Service
@@ -38,14 +39,18 @@ import static java.util.Collections.singletonList;
 public class UserServiceImpl implements UserService {
 
     private static final String USER = "User";
+    private static final String ADMINROLE = "Admin";
 
     private final JwtUtils jwtUtils;
     private final DaoMapper daoMapper;
     private final DtoMapper dtoMapper;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CredentialRepository credentialRepository;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserRoleChangeEmailListener userRoleChangeEmailListener;
+
 
     @Override
     @Transactional
@@ -112,15 +117,22 @@ public class UserServiceImpl implements UserService {
         final UserEntity userEntity = userRepository.findById(changeRoleRequest.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException(
                         String.format(USER_NOT_FOUND_ERROR_MESSAGE, changeRoleRequest.getUserId())));
-
+        String oldRole = userEntity.getRole().getName();
         final RoleEntity newRole = roleRepository.findRoleEntityByName(changeRoleRequest.getNewRole())
                 .orElseThrow(() -> new EntityNotFoundException(
                         String.format(ROLE_NOT_FOUND_ERROR_MESSAGE, changeRoleRequest.getNewRole())
                 ));
+
         userEntity.setRole(newRole);
 
         final UserEntity userNewRole = userRepository.save(userEntity);
         final User user = daoMapper.map(userNewRole);
+
+        if (!oldRole.equals(newRole.getName()) && newRole.getName().equals(ADMINROLE)){
+            String email = credentialRepository.findById(user.getId()).orElseThrow(() -> new EntityNotFoundException(
+                    String.format(CREDENTIALS_NOT_FOUND_ERROR_MESSAGE, changeRoleRequest.getUserId()))).getEmail();
+            userRoleChangeEmailListener.handleUserRoleChangeEvent(email);
+        }
         return dtoMapper.map(user);
     }
 }
