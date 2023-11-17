@@ -1,4 +1,4 @@
-package com.endava.internship.infrastructure.service;
+package com.endava.internship.infrastructure.security;
 
 import com.endava.internship.dao.entity.UserEntity;
 import com.endava.internship.dao.repository.UserRepository;

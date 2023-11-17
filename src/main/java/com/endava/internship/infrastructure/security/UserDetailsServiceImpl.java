@@ -1,8 +1,7 @@
-package com.endava.internship.infrastructure.service;
+package com.endava.internship.infrastructure.security;
 
 import com.endava.internship.dao.entity.UserEntity;
 import com.endava.internship.dao.repository.UserRepository;
-import com.endava.internship.infrastructure.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

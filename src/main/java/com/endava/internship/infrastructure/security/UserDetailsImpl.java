@@ -1,11 +1,15 @@
 package com.endava.internship.infrastructure.security;
 
 import com.endava.internship.dao.entity.UserEntity;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Collections;
 
+@Getter
 public class UserDetailsImpl implements UserDetails {
 
     private final UserEntity user;
@@ -16,7 +20,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getName()));
     }
 
     @Override
@@ -47,9 +51,5 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public boolean isEnabled() {
         return false;
-    }
-
-    public UserEntity getUser() {
-        return this.user;
     }
 }

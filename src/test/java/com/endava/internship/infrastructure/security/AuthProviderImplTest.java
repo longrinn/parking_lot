@@ -1,27 +1,30 @@
 package com.endava.internship.infrastructure.security;
 
-import com.endava.internship.infrastructure.service.UserDetailsServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthProviderImplTest {
 
     @Mock
-    private UserDetailsServiceImpl userDetailsService;
-
+    private UserDetailsService userDetailsService;
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @InjectMocks
     private AuthProviderImpl authProvider;
 
@@ -30,7 +33,7 @@ public class AuthProviderImplTest {
     private final String wrongPassword = "wrongPassword";
 
     private Authentication createMockAuthentication(String email, String password) {
-        Authentication authentication = Mockito.mock(Authentication.class);
+        final Authentication authentication = mock(Authentication.class);
         when(authentication.getName()).thenReturn(email);
         when(authentication.getCredentials()).thenReturn(password);
         return authentication;
@@ -38,12 +41,13 @@ public class AuthProviderImplTest {
 
     @Test
     public void authenticateWithValidCredentials() {
-        UserDetails mockUserDetails = Mockito.mock(UserDetails.class);
+        final UserDetails mockUserDetails = mock(UserDetails.class);
         when(mockUserDetails.getPassword()).thenReturn(correctPassword);
         when(userDetailsService.loadUserByUsername(email)).thenReturn(mockUserDetails);
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
 
-        Authentication authentication = createMockAuthentication(email, correctPassword);
-        Authentication result = authProvider.authenticate(authentication);
+        final Authentication authentication = createMockAuthentication(email, correctPassword);
+        final Authentication result = authProvider.authenticate(authentication);
 
         assertNotNull(result);
     }
@@ -52,18 +56,18 @@ public class AuthProviderImplTest {
     public void authenticateWithNonExistingUser() {
         when(userDetailsService.loadUserByUsername(email)).thenThrow(new UsernameNotFoundException("User not found"));
 
-        Authentication authentication = createMockAuthentication(email, wrongPassword);
+        final Authentication authentication = createMockAuthentication(email, wrongPassword);
 
         assertThrows(UsernameNotFoundException.class, () -> authProvider.authenticate(authentication));
     }
 
     @Test
     public void authenticateWithBadCredentials() {
-        UserDetails mockUserDetails = Mockito.mock(UserDetails.class);
+        UserDetails mockUserDetails = mock(UserDetails.class);
         when(mockUserDetails.getPassword()).thenReturn(correctPassword);
         when(userDetailsService.loadUserByUsername(email)).thenReturn(mockUserDetails);
 
-        Authentication authentication = createMockAuthentication(email, wrongPassword);
+        final Authentication authentication = createMockAuthentication(email, wrongPassword);
 
         assertThrows(BadCredentialsException.class, () -> authProvider.authenticate(authentication));
     }

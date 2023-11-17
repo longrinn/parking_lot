@@ -2,7 +2,7 @@ package com.endava.internship.infrastructure.security.filter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.endava.internship.infrastructure.security.JwtUtils;
-import com.endava.internship.infrastructure.service.UserDetailsServiceImpl;
+import com.endava.internship.infrastructure.security.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

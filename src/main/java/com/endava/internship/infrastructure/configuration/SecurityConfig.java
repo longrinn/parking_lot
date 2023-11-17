@@ -1,6 +1,5 @@
 package com.endava.internship.infrastructure.configuration;
 
-import com.endava.internship.infrastructure.security.AuthProviderImpl;
 import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +19,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final AuthProviderImpl authProvider;
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -31,7 +30,6 @@ public class SecurityConfig {
                         configurer
                                 .sessionCreationPolicy(STATELESS)
                 )
-                .authenticationProvider(authProvider)
                 .authorizeHttpRequests(request -> request.anyRequest().permitAll())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
