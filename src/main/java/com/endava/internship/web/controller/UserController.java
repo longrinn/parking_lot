@@ -4,9 +4,9 @@ import com.endava.internship.infrastructure.service.api.UserService;
 import com.endava.internship.web.dto.AuthenticationRequest;
 import com.endava.internship.web.dto.AuthenticationResponse;
 import com.endava.internship.web.dto.RegistrationRequest;
+import jakarta.validation.Valid;
 import com.endava.internship.web.dto.UserUpdatedRoleResponse;
 import com.endava.internship.web.request.ChangeRoleRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,7 +26,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/registration")
-    public ResponseEntity<AuthenticationResponse> registration(@RequestBody RegistrationRequest request) {
+    public ResponseEntity<AuthenticationResponse> registration(@RequestBody @Valid RegistrationRequest request) {
         return ResponseEntity.status(CREATED).body(userService.registration(request));
     }
 

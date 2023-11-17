@@ -21,7 +21,7 @@ public class EntityMappingTest {
     public void testUserEntityMapping() {
         RoleEntity userRole = entityManager.find(RoleEntity.class, 2);
 
-        UserEntity user = new UserEntity(null, null, "John Doe", "+37345678904", userRole);
+        UserEntity user = new UserEntity(null, null, "John Doe", "045678904", userRole);
         entityManager.persist(user);
 
         CredentialsEntity credentials = new CredentialsEntity(null, user, "john.doe@example.com", "password123");
