@@ -1,10 +1,8 @@
 package com.endava.internship.dao.entity;
 
-import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
-import java.io.Serializable;
-
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,40 +10,39 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter
-@Setter
-@Builder
+@Table(name = "parking_level")
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "client")
-public class UserEntity implements Serializable {
+@Getter
+@Setter
+public class ParkingLevelEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @OneToOne(mappedBy = "userEntity", cascade = ALL)
-    private CredentialsEntity credential;
-
-    @Column(nullable = false)
-    private String name;
-
-    @Column(unique = true)
-    private String phone;
-
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "role")
-    private RoleEntity role;
+    @JoinColumn(name = "parking_lot_id", nullable = false)
+    private ParkingLotEntity parkingLot;
 
-    @OneToOne(mappedBy = "user")
-    private ParkingSpotEntity parking_spot;
+    @NotNull
+    @Column(nullable = false)
+    private Integer floor;
+
+    @NotNull
+    @Column(name = "total_spots", nullable = false)
+    private Integer totalSpots;
+
+    @OneToMany(mappedBy = "parkingLevel")
+    private Set<ParkingSpotEntity> parkingSpots;
 }

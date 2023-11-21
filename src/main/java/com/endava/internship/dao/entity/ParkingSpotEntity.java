@@ -1,10 +1,6 @@
 package com.endava.internship.dao.entity;
 
-import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.GenerationType.IDENTITY;
-
-import java.io.Serializable;
-
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,37 +11,36 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Getter
-@Setter
-@Builder
+@Table(name = "parking_spot")
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "client")
-public class UserEntity implements Serializable {
+@Getter
+@Setter
+public class ParkingSpotEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @OneToOne(mappedBy = "userEntity", cascade = ALL)
-    private CredentialsEntity credential;
+    @ManyToOne
+    @JoinColumn(name = "level_id", nullable = false)
+    private ParkingLevelEntity parkingLevel;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(unique = true)
-    private String phone;
+    @Column(nullable = false)
+    private Boolean state;
 
-    @ManyToOne
-    @JoinColumn(name = "role")
-    private RoleEntity role;
+    @Column(nullable = false)
+    private String type;
 
-    @OneToOne(mappedBy = "user")
-    private ParkingSpotEntity parking_spot;
+    @OneToOne
+    @JoinColumn(referencedColumnName = "id")
+    private UserEntity user;
 }

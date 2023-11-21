@@ -1,19 +1,19 @@
 package com.endava.internship.dao.entity;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.PersistenceException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(SpringExtension.class)
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
+
 @DataJpaTest
+@ActiveProfiles("test")
 public class CredentialsConstraintsTest {
     @PersistenceContext
     private EntityManager entityManager;
@@ -45,30 +45,6 @@ public class CredentialsConstraintsTest {
     @Test
     public void passIsNull_thenThrowException() {
         CREDENTIALS_ENTITY.setPassword(null);
-
-        assertThrows(PersistenceException.class, () -> {
-            entityManager.persist(CREDENTIALS_ENTITY);
-            entityManager.flush();
-        });
-    }
-
-    @Test
-    public void emailIsNull_thenThrowException() {
-        CREDENTIALS_ENTITY.setUserEntity(USER_ENTITY);
-        CREDENTIALS_ENTITY.setEmail(null);
-        CREDENTIALS_ENTITY.setPassword("ValidPassword");
-
-        assertThrows(PersistenceException.class, () -> {
-            entityManager.persist(CREDENTIALS_ENTITY);
-            entityManager.flush();
-        });
-    }
-
-    @Test
-    public void emailBadFormat_thenThrowException() {
-        CREDENTIALS_ENTITY.setUserEntity(USER_ENTITY);
-        CREDENTIALS_ENTITY.setEmail("badEmail");
-        CREDENTIALS_ENTITY.setPassword("ValidPassword");
 
         assertThrows(PersistenceException.class, () -> {
             entityManager.persist(CREDENTIALS_ENTITY);

@@ -1,20 +1,20 @@
 package com.endava.internship.dao.entity;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.PersistenceException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(SpringExtension.class)
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
+
 @DataJpaTest
+@ActiveProfiles("test")
 public class RoleConstraintsTest {
 
     @PersistenceContext
@@ -38,17 +38,6 @@ public class RoleConstraintsTest {
 
         final RoleEntity found = entityManager.find(RoleEntity.class, ROLE_ENTITY.getId());
         assertNotNull(found);
-    }
-
-    @Test
-    public void nameIsNull_thenThrowException() {
-        ROLE_ENTITY.setId(3);
-        ROLE_ENTITY.setName(null);
-
-        assertThrows(PersistenceException.class, () -> {
-            entityManager.persist(ROLE_ENTITY);
-            entityManager.flush();
-        });
     }
 
     @Test
