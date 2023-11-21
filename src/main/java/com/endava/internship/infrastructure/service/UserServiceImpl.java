@@ -30,8 +30,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import static com.endava.internship.infrastructure.util.ParkingLotConstants.CREDENTIALS_NOT_FOUND_ERROR_MESSAGE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.ROLE_NOT_FOUND_ERROR_MESSAGE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.USER_NOT_FOUND_ERROR_MESSAGE;
 import static java.util.Collections.singletonList;
@@ -116,24 +116,24 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserUpdatedRoleResponse updateUserRole(ChangeRoleRequest changeRoleRequest) {
 
-        final UserEntity userEntity = userRepository.findById(changeRoleRequest.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format(USER_NOT_FOUND_ERROR_MESSAGE, changeRoleRequest.getUserId())));
+        final String standardisedNewRole = StringUtils.capitalize(changeRoleRequest.getNewRole().toLowerCase().trim());
+        final String userEmail = changeRoleRequest.getEmail();
 
-        final RoleEntity newRole = roleRepository.findRoleEntityByName(changeRoleRequest.getNewRole())
+        final UserEntity userEntity = userRepository.findByCredential_Email(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        String.format(ROLE_NOT_FOUND_ERROR_MESSAGE, changeRoleRequest.getNewRole())
+                        String.format(USER_NOT_FOUND_ERROR_MESSAGE, userEmail)));
+
+        final RoleEntity newRole = roleRepository.findRoleEntityByName(standardisedNewRole)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(ROLE_NOT_FOUND_ERROR_MESSAGE, standardisedNewRole)
                 ));
         String oldRole = userEntity.getRole().getName();
         userEntity.setRole(newRole);
 
         final UserEntity userNewRole = userRepository.save(userEntity);
         final User user = daoMapper.map(userNewRole);
-
-        if (user != null && !oldRole.equals(newRole.getName()) && newRole.getName().equals(ADMINROLE)){
-            String email = credentialRepository.findById(user.getId()).orElseThrow(() -> new EntityNotFoundException(
-                    String.format(CREDENTIALS_NOT_FOUND_ERROR_MESSAGE, changeRoleRequest.getUserId()))).getEmail();
-            userRoleChangeEmailListener.handleUserRoleChangeEvent(email);
+        if (!oldRole.equals(newRole.getName()) && newRole.getName().equals(ADMINROLE)) {
+            userRoleChangeEmailListener.handleUserRoleChangeEvent(userEmail);
         }
         return dtoMapper.map(user);
     }

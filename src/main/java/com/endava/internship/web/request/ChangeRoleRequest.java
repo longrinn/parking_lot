@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 public class ChangeRoleRequest {
 
     @NotNull
-    private final Integer userId;
+    private final String email;
     @NotNull
     private final String newRole;
 }
