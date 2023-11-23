@@ -1,12 +1,18 @@
 package com.endava.internship.infrastructure.exception;
 
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.LocalDate;
+import jakarta.persistence.EntityNotFoundException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -23,7 +29,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorDetails> handleRuntimeException(Exception ex, WebRequest request) {
+    public ResponseEntity<ErrorDetails> handleRuntimeException(RuntimeException ex, WebRequest request) {
         final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
                 request.getDescription(false));
 
@@ -31,10 +37,35 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<ErrorDetails> handleUsernameNotfoundException(Exception ex, WebRequest request) {
+    public ResponseEntity<ErrorDetails> handleUsernameNotFoundException(UsernameNotFoundException ex, WebRequest request) {
         final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
                 request.getDescription(false));
 
         return ResponseEntity.status(NOT_FOUND).body(errorDetails);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorDetails> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
+        final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
+                request.getDescription(false));
+
+        return ResponseEntity.status(NOT_FOUND).body(errorDetails);
+    }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<ErrorDetails> handleSQLException(SQLException ex, WebRequest request) {
+        final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getLocalizedMessage(),
+                request.getDescription(false));
+
+        return ResponseEntity.status(BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<List<ValidationExceptionResponse>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        List<ValidationExceptionResponse> errors = ex.getBindingResult()
+                .getAllErrors().stream()
+                .map(error -> new ValidationExceptionResponse(((FieldError) error).getField(), error.getDefaultMessage()))
+                .toList();
+        return ResponseEntity.status(BAD_REQUEST).body(errors);
     }
 }

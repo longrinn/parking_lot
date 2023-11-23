@@ -1,19 +1,21 @@
 package com.endava.internship.web.controller;
 
-import com.endava.internship.infrastructure.service.api.UserService;
-import com.endava.internship.web.dto.AuthenticationRequest;
-import com.endava.internship.web.dto.AuthenticationResponse;
-import com.endava.internship.web.dto.RegistrationRequest;
-import jakarta.validation.Valid;
-import com.endava.internship.web.dto.UserUpdatedRoleResponse;
-import com.endava.internship.web.request.ChangeRoleRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.endava.internship.infrastructure.service.api.UserService;
+import com.endava.internship.web.dto.AuthenticationResponse;
+import com.endava.internship.web.dto.UserUpdatedRoleResponse;
+import com.endava.internship.web.request.AuthenticationRequest;
+import com.endava.internship.web.request.ChangeRoleRequest;
+import com.endava.internship.web.request.RegistrationRequest;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;

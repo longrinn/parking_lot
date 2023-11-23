@@ -1,10 +1,11 @@
-package com.endava.internship.utils;
+package com.endava.internship.infrastructure.utils;
+
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.endava.internship.dao.entity.CredentialsEntity;
 import com.endava.internship.dao.entity.RoleEntity;
 import com.endava.internship.dao.entity.UserEntity;
 import com.endava.internship.infrastructure.security.UserDetailsImpl;
-import org.springframework.security.core.userdetails.UserDetails;
 
 public class TestUtils {
 

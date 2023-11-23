@@ -1,13 +1,16 @@
 package com.endava.internship.web.dto;
 
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.endava.internship.web.request.AuthenticationRequest;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,7 +69,7 @@ public class AuthenticationRequestTest {
 
     @Test
     void whenPassWith4Chars_violationsFound() {
-        AuthenticationRequest request = new AuthenticationRequest( "testUser@example.com", "Pa1!");
+        AuthenticationRequest request = new AuthenticationRequest("testUser@example.com", "Pa1!");
         Set<ConstraintViolation<AuthenticationRequest>> violations = validator.validate(request);
         assertFalse(violations.isEmpty());
     }

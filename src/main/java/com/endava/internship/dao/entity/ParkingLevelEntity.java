@@ -1,7 +1,5 @@
 package com.endava.internship.dao.entity;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-
 import java.util.Set;
 
 import jakarta.persistence.Column;
@@ -17,6 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "parking_level")

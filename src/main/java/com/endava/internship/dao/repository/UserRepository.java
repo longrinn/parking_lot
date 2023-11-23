@@ -1,9 +1,10 @@
 package com.endava.internship.dao.repository;
 
-import com.endava.internship.dao.entity.UserEntity;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import com.endava.internship.dao.entity.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 

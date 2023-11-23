@@ -1,12 +1,7 @@
 package com.endava.internship.infrastructure.security.filter;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.endava.internship.infrastructure.security.JwtUtils;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +9,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.endava.internship.infrastructure.security.JwtUtils;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static java.util.Collections.emptyList;

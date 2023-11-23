@@ -1,8 +1,9 @@
 package com.endava.internship.infrastructure.security;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import com.auth0.jwt.exceptions.JWTVerificationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

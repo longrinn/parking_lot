@@ -1,13 +1,5 @@
 package com.endava.internship.infrastructure.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -18,6 +10,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.endava.internship.dao.entity.CredentialsEntity;
@@ -25,14 +20,29 @@ import com.endava.internship.dao.entity.RoleEntity;
 import com.endava.internship.dao.entity.UserEntity;
 import com.endava.internship.dao.repository.RoleRepository;
 import com.endava.internship.dao.repository.UserRepository;
+import com.endava.internship.infrastructure.domain.Credentials;
 import com.endava.internship.infrastructure.domain.Role;
 import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.listeners.UserRoleChangeEmailListener;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.mapper.DtoMapper;
+import com.endava.internship.infrastructure.security.JwtUtils;
+import com.endava.internship.infrastructure.security.UserDetailsImpl;
+import com.endava.internship.web.dto.AuthenticationResponse;
+import com.endava.internship.web.request.AuthenticationRequest;
 import com.endava.internship.web.request.ChangeRoleRequest;
+import com.endava.internship.web.request.RegistrationRequest;
 
 import jakarta.persistence.EntityNotFoundException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Import(UserServiceImpl.class)
 @ExtendWith(MockitoExtension.class)
@@ -59,8 +69,91 @@ class UserServiceTest {
     @Mock
     UserRoleChangeEmailListener userRoleChangeEmailListener;
 
+    @Mock
+    JwtUtils jwtUtils;
+
     @InjectMocks
     private UserServiceImpl userService;
+
+    @Test
+    void registeredUserShouldBeAdded() {
+        RegistrationRequest request = new RegistrationRequest("UserName", "user@mail.com", "User1!", "067860680");
+
+        RoleEntity roleEntity = new RoleEntity(1, "User");
+        UserEntity userEntity = new UserEntity(1, null, "UserName", "067860680", roleEntity, null);
+        CredentialsEntity credentialsEntity = new CredentialsEntity(1, userEntity, "user@mail.com", "hashedPassword");
+
+        when(bCryptPasswordEncoder.encode("User1!")).thenReturn("hashedPassword");
+        when(daoMapper.map(any(Credentials.class))).thenReturn(credentialsEntity);
+        when(daoMapper.map(any(User.class))).thenReturn(userEntity);
+        when(roleRepository.findRoleEntityByName("User")).thenReturn(Optional.of(roleEntity));
+        when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+        when(jwtUtils.generateToken("user@mail.com")).thenReturn("mockedJwtToken");
+
+        AuthenticationResponse response = userService.registration(request);
+
+        verify(bCryptPasswordEncoder).encode("User1!");
+        verify(daoMapper).map(any(Credentials.class));
+        verify(daoMapper).map(any(User.class));
+        verify(roleRepository).findRoleEntityByName("User");
+        verify(userRepository).save(any(UserEntity.class));
+        verify(jwtUtils).generateToken("user@mail.com");
+
+        assertEquals("user@mail.com", response.getEmail());
+        assertEquals("User", response.getRole());
+        assertEquals("mockedJwtToken", response.getJwt());
+    }
+
+    @Test
+    void register_WhenRoleIsNotPresent_ShouldThrowEntityNotFoundException() {
+        RegistrationRequest request = new RegistrationRequest("UserName", "user@mail.com", "User1!", "067860680");
+
+        when(roleRepository.findRoleEntityByName("User")).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.registration(request));
+    }
+
+    @Test
+    void authenticateUserShouldBeAuthenticated() {
+        String expectedEmail = "user@mail.com";
+        String expectedPassword = "User1!";
+        String expectedName = "User";
+        AuthenticationRequest request = new AuthenticationRequest(expectedEmail, expectedPassword);
+
+        CredentialsEntity credentialsEntity = CredentialsEntity.builder()
+                .email(expectedEmail)
+                .password(expectedPassword)
+                .build();
+        RoleEntity roleEntity = new RoleEntity(1, expectedName);
+        UserEntity userEntity = new UserEntity(1, credentialsEntity, expectedName, "067860680", roleEntity, null);
+        UserDetails userDetails = new UserDetailsImpl(userEntity);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, expectedPassword, userDetails.getAuthorities());
+
+        when(userRepository.findByCredential_Email(expectedEmail)).thenReturn(Optional.of(userEntity));
+        when(authenticationManager.authenticate(any())).thenReturn(authentication);
+        when(jwtUtils.generateToken(expectedEmail)).thenReturn("mockedJwtToken");
+
+        AuthenticationResponse response = userService.authentication(request);
+
+        verify(userRepository).findByCredential_Email(expectedEmail);
+        verify(authenticationManager).authenticate(any());
+        verify(jwtUtils).generateToken(expectedEmail);
+
+        assertEquals(expectedEmail, response.getEmail());
+        assertEquals(expectedName, response.getRole());
+        assertEquals("mockedJwtToken", response.getJwt());
+
+    }
+
+    @Test
+    void registration_WhenUserIsNotFound_ShouldThrowEntityNotFoundException() {
+        String email = "user@mail.com";
+        AuthenticationRequest request = new AuthenticationRequest(email, "User1!");
+
+        when(userRepository.findByCredential_Email(email)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.authentication(request));
+    }
 
     @Test
     void updateUserRoleUserRoleShouldBeUpdated() {

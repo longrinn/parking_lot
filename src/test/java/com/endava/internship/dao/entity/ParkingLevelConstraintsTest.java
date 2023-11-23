@@ -1,11 +1,5 @@
 package com.endava.internship.dao.entity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Optional;
@@ -22,6 +16,12 @@ import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.ParkingSpotRepository;
 
 import jakarta.validation.ConstraintViolationException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @ActiveProfiles("test")

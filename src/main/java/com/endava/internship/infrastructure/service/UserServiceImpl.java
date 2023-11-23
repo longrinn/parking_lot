@@ -1,5 +1,16 @@
 package com.endava.internship.infrastructure.service;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import com.endava.internship.dao.entity.CredentialsEntity;
 import com.endava.internship.dao.entity.RoleEntity;
 import com.endava.internship.dao.entity.UserEntity;
@@ -14,23 +25,14 @@ import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.infrastructure.security.JwtUtils;
 import com.endava.internship.infrastructure.security.UserDetailsImpl;
 import com.endava.internship.infrastructure.service.api.UserService;
-import com.endava.internship.web.dto.AuthenticationRequest;
 import com.endava.internship.web.dto.AuthenticationResponse;
-import com.endava.internship.web.dto.RegistrationRequest;
 import com.endava.internship.web.dto.UserUpdatedRoleResponse;
+import com.endava.internship.web.request.AuthenticationRequest;
 import com.endava.internship.web.request.ChangeRoleRequest;
+import com.endava.internship.web.request.RegistrationRequest;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.ROLE_NOT_FOUND_ERROR_MESSAGE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.USER_NOT_FOUND_ERROR_MESSAGE;
@@ -66,7 +68,10 @@ public class UserServiceImpl implements UserService {
                 .password(bCryptPasswordEncoder.encode(request.getPassword()))
                 .build();
 
-        final RoleEntity role = roleRepository.findRoleEntityByName(USER).get();
+        final RoleEntity role = roleRepository.findRoleEntityByName(USER)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(ROLE_NOT_FOUND_ERROR_MESSAGE, USER)
+                ));
 
         final CredentialsEntity credentialsEntity = daoMapper.map(credentials);
         final UserEntity userEntity = daoMapper.map(user);
@@ -93,11 +98,16 @@ public class UserServiceImpl implements UserService {
                 .password(request.getPassword())
                 .build();
 
-        final UserEntity user = userRepository.findByCredential_Email(requestCredentials.getEmail()).get();
+        final String email = requestCredentials.getEmail();
+
+        final UserEntity user = userRepository.findByCredential_Email(email)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(USER_NOT_FOUND_ERROR_MESSAGE, email)));
+
         final GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(user.getRole().getName());
 
         final UsernamePasswordAuthenticationToken requestToken = new UsernamePasswordAuthenticationToken(
-                requestCredentials.getEmail(), requestCredentials.getPassword(), singletonList(grantedAuthority));
+                email, requestCredentials.getPassword(), singletonList(grantedAuthority));
 
         final Authentication authentication = authenticationManager.authenticate(requestToken);
 

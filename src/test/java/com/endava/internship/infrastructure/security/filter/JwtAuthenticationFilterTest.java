@@ -1,12 +1,7 @@
 package com.endava.internship.infrastructure.security.filter;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.endava.internship.infrastructure.security.JwtUtils;
-import com.endava.internship.infrastructure.security.UserDetailsServiceImpl;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +12,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.io.IOException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.endava.internship.infrastructure.security.JwtUtils;
+import com.endava.internship.infrastructure.security.UserDetailsServiceImpl;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;

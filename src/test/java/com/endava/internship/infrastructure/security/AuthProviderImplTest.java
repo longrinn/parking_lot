@@ -5,15 +5,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -70,6 +74,26 @@ public class AuthProviderImplTest {
         final Authentication authentication = createMockAuthentication(email, wrongPassword);
 
         assertThrows(BadCredentialsException.class, () -> authProvider.authenticate(authentication));
+    }
+
+    @Test
+    void supports_UsernamePasswordAuthenticationToken_ReturnsTrue() {
+        AuthProviderImpl authProvider = new AuthProviderImpl(null, null);
+        Class<?> authenticationClass = UsernamePasswordAuthenticationToken.class;
+
+        boolean result = authProvider.supports(authenticationClass);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void supports_OtherAuthenticationToken_ReturnsFalse() {
+        AuthProviderImpl authProvider = new AuthProviderImpl(null, null);
+        Class<?> authenticationClass = AbstractAuthenticationToken.class;
+
+        boolean result = authProvider.supports(authenticationClass);
+
+        assertFalse(result);
     }
 
 }

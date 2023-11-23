@@ -1,7 +1,7 @@
 package com.endava.internship.infrastructure.security;
 
-import com.endava.internship.dao.entity.UserEntity;
-import com.endava.internship.dao.repository.UserRepository;
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,16 +11,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Optional;
+import com.endava.internship.dao.entity.UserEntity;
+import com.endava.internship.dao.repository.UserRepository;
 
-import static com.endava.internship.utils.TestUtils.EXISTING_USER_EMAIL;
-import static com.endava.internship.utils.TestUtils.NON_EXISTENT_USER_EMAIL;
-import static com.endava.internship.utils.TestUtils.PHONE_NUMBER;
-import static com.endava.internship.utils.TestUtils.ROLE_USER;
-import static com.endava.internship.utils.TestUtils.getUserEmail;
-import static com.endava.internship.utils.TestUtils.getUserPhone;
-import static com.endava.internship.utils.TestUtils.getUserRole;
-import static com.endava.internship.utils.TestUtils.setupExistingUser;
+import static com.endava.internship.infrastructure.utils.TestUtils.EXISTING_USER_EMAIL;
+import static com.endava.internship.infrastructure.utils.TestUtils.NON_EXISTENT_USER_EMAIL;
+import static com.endava.internship.infrastructure.utils.TestUtils.PHONE_NUMBER;
+import static com.endava.internship.infrastructure.utils.TestUtils.ROLE_USER;
+import static com.endava.internship.infrastructure.utils.TestUtils.getUserEmail;
+import static com.endava.internship.infrastructure.utils.TestUtils.getUserPhone;
+import static com.endava.internship.infrastructure.utils.TestUtils.getUserRole;
+import static com.endava.internship.infrastructure.utils.TestUtils.setupExistingUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;

@@ -1,13 +1,15 @@
 package com.endava.internship.infrastructure.security;
 
-import com.endava.internship.dao.entity.UserEntity;
-import lombok.Getter;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.Collections;
+import com.endava.internship.dao.entity.UserEntity;
+
+import lombok.Getter;
 
 @Getter
 public class UserDetailsImpl implements UserDetails {

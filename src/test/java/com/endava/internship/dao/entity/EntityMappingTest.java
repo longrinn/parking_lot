@@ -1,9 +1,5 @@
 package com.endava.internship.dao.entity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,6 +11,10 @@ import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @ActiveProfiles("test")

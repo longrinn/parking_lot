@@ -1,9 +1,11 @@
 package com.endava.internship.infrastructure.listeners;
 
-import com.endava.internship.infrastructure.service.EmailSenderService;
-import lombok.AllArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+
+import com.endava.internship.infrastructure.service.EmailSenderService;
+
+import lombok.AllArgsConstructor;
 
 @Component
 @AllArgsConstructor
@@ -22,5 +24,3 @@ public class UserRoleChangeEmailListener {
         emailSenderService.sendEmail(email, subject, text);
     }
 }
-
-
