@@ -26,10 +26,13 @@ public class EntityMappingTest {
     private static ParkingLevelEntity PARKING_LEVEL;
     private static ParkingSpotEntity PARKING_SPOT;
     private static WorkingTimeEntity WORKING_TIME;
+    private static UserEntity USER_ENTITY;
+    private static RoleEntity ROLE_ENTITY;
+    private static CredentialsEntity CREDENTIALS_ENTITY;
 
     @BeforeEach
     public void setup() {
-        PARKING_LOT = new ParkingLotEntity(null, "Lot 1", "123 Main St", LocalTime.of(8, 0), LocalTime.of(20, 0), null, null);
+        PARKING_LOT = new ParkingLotEntity(null, "Lot 1", "123 Main St", LocalTime.of(8, 0), LocalTime.of(20, 0), null, null, null);
         entityManager.persist(PARKING_LOT);
 
         PARKING_LEVEL = new ParkingLevelEntity(null, PARKING_LOT, 1, 50, null);
@@ -41,24 +44,24 @@ public class EntityMappingTest {
         WORKING_TIME = new WorkingTimeEntity(null, PARKING_LOT, "Monday");
         entityManager.persist(WORKING_TIME);
 
-        entityManager.flush();
+        ROLE_ENTITY = new RoleEntity(2, "USER");
+        entityManager.persist(ROLE_ENTITY);
+
+        USER_ENTITY = new UserEntity(null, null, "John Doe", "045678904", ROLE_ENTITY, null, null);
+        entityManager.persist(USER_ENTITY);
+
+        CREDENTIALS_ENTITY = new CredentialsEntity(null, USER_ENTITY, "john.doe@example.com", "password123");
+        entityManager.persist(CREDENTIALS_ENTITY);
     }
 
     @Test
     public void testUserEntityMapping() {
-        final RoleEntity userRole = entityManager.find(RoleEntity.class, 2);
-
-        final UserEntity user = new UserEntity(null, null, "John Doe", "045678904", userRole, null);
-        entityManager.persist(user);
-
-        final CredentialsEntity credentials = new CredentialsEntity(null, user, "john.doe@example.com", "password123");
-        user.setCredential(credentials);
-        entityManager.persist(credentials);
+        USER_ENTITY.setCredential(CREDENTIALS_ENTITY);
 
         entityManager.flush();
         entityManager.clear();
 
-        final UserEntity retrievedUser = entityManager.find(UserEntity.class, user.getId());
+        final UserEntity retrievedUser = entityManager.find(UserEntity.class, USER_ENTITY.getId());
         assertNotNull(retrievedUser);
         assertNotNull(retrievedUser.getCredential());
         assertEquals("john.doe@example.com", retrievedUser.getCredential().getEmail());
@@ -150,5 +153,40 @@ public class EntityMappingTest {
         assertNotNull(retrievedSpot);
         assertNotNull(retrievedSpot.getUser());
         assertEquals("John Doe", retrievedSpot.getUser().getName());
+    }
+
+    @Test
+    public void testUserParkingLotRelationship() {
+        ParkingLotEntity parkingLot2 = new ParkingLotEntity(null, "Lot 2", "456 Elm St", LocalTime.of(9, 0), LocalTime.of(21, 0), null, null, null);
+        entityManager.persist(PARKING_LOT);
+        entityManager.persist(parkingLot2);
+
+        UserEntity user2 = new UserEntity(null, CREDENTIALS_ENTITY, "Jane Smith", "098765432", ROLE_ENTITY, null, null);
+        entityManager.persist(user2);
+
+        Set<ParkingLotEntity> parkingLots = new HashSet<>();
+        parkingLots.add(PARKING_LOT);
+        parkingLots.add(parkingLot2);
+
+        USER_ENTITY.setParking_lots(parkingLots);
+        user2.setParking_lots(parkingLots);
+
+        entityManager.flush();
+        entityManager.clear();
+
+        UserEntity retrievedUser1 = entityManager.find(UserEntity.class, USER_ENTITY.getId());
+        UserEntity retrievedUser2 = entityManager.find(UserEntity.class, user2.getId());
+        assertNotNull(retrievedUser1);
+        assertNotNull(retrievedUser2);
+        assertEquals(2, retrievedUser1.getParking_lots().size());
+        assertEquals(2, retrievedUser2.getParking_lots().size());
+
+        final ParkingLotEntity retrievedLot1 = entityManager.find(ParkingLotEntity.class, PARKING_LOT.getId());
+        final ParkingLotEntity retrievedLot2 = entityManager.find(ParkingLotEntity.class, parkingLot2.getId());
+
+        assertNotNull(retrievedLot1);
+        assertNotNull(retrievedLot2);
+        assertEquals(2, retrievedLot1.getUsers().size());
+        assertEquals(2, retrievedLot2.getUsers().size());
     }
 }

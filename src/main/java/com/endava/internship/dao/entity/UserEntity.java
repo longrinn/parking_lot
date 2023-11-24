@@ -1,12 +1,15 @@
 package com.endava.internship.dao.entity;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -45,6 +48,19 @@ public class UserEntity implements Serializable {
     @JoinColumn(name = "role")
     private RoleEntity role;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne
+    @JoinTable(
+            name = "client_spot",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "spot_id")
+    )
     private ParkingSpotEntity parking_spot;
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_parking_lot",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "parking_lot_id")
+    )
+    private Set<ParkingLotEntity> parking_lots;
 }

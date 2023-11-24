@@ -40,7 +40,6 @@ public class ParkingSpotEntity {
     @Column(nullable = false)
     private String type;
 
-    @OneToOne
-    @JoinColumn(referencedColumnName = "id")
+    @OneToOne(mappedBy = "parking_spot")
     private UserEntity user;
 }

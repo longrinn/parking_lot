@@ -80,7 +80,7 @@ class UserServiceTest {
         RegistrationRequest request = new RegistrationRequest("UserName", "user@mail.com", "User1!", "067860680");
 
         RoleEntity roleEntity = new RoleEntity(1, "User");
-        UserEntity userEntity = new UserEntity(1, null, "UserName", "067860680", roleEntity, null);
+        UserEntity userEntity = new UserEntity(1, null, "UserName", "067860680", roleEntity, null, null);
         CredentialsEntity credentialsEntity = new CredentialsEntity(1, userEntity, "user@mail.com", "hashedPassword");
 
         when(bCryptPasswordEncoder.encode("User1!")).thenReturn("hashedPassword");
@@ -125,7 +125,7 @@ class UserServiceTest {
                 .password(expectedPassword)
                 .build();
         RoleEntity roleEntity = new RoleEntity(1, expectedName);
-        UserEntity userEntity = new UserEntity(1, credentialsEntity, expectedName, "067860680", roleEntity, null);
+        UserEntity userEntity = new UserEntity(1, credentialsEntity, expectedName, "067860680", roleEntity, null, null);
         UserDetails userDetails = new UserDetailsImpl(userEntity);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, expectedPassword, userDetails.getAuthorities());
 
@@ -159,7 +159,7 @@ class UserServiceTest {
     void updateUserRoleUserRoleShouldBeUpdated() {
         ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("email@.com", "Admin");
         RoleEntity roleEntity = new RoleEntity(1, "User");
-        UserEntity userEntity = new UserEntity(1, null, "John", "+37368521164", roleEntity, null);
+        UserEntity userEntity = new UserEntity(1, null, "John", "+37368521164", roleEntity, null, null);
         User user = new User(1, "name", "+37326548958", new Role("Admin"));
 
         when(userRepository.findByCredential_Email("email@.com")).thenReturn(Optional.of(userEntity));
@@ -183,7 +183,7 @@ class UserServiceTest {
     @Test
     void updateUserRole_WhenUserEmailIsNull_ShouldThrowException() {
         ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest(null, "Role");
-        UserEntity user = new UserEntity(1, null, "John", "+37368521164", null, null);
+        UserEntity user = new UserEntity(1, null, "John", "+37368521164", null, null, null);
         RoleEntity newRole = new RoleEntity(1, "Admin");
         user.setRole(newRole);
 
@@ -195,7 +195,7 @@ class UserServiceTest {
     @Test
     void updateUserRole_WhenUserNotFound_ShouldThrowException() {
         ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("email@.mail", "Role");
-        UserEntity user = new UserEntity(1, null, "John", "+37368521164", null, null);
+        UserEntity user = new UserEntity(1, null, "John", "+37368521164", null, null, null);
 
         when(userRepository.findByCredential_Email(changeRoleRequest.getEmail())).thenReturn(Optional.empty());
 
@@ -205,7 +205,7 @@ class UserServiceTest {
     @Test
     void updateUserRole_WhenRoleNotFound_ShouldThrowException() {
         final ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("email@.mail", "Role");
-        UserEntity user = new UserEntity(1, null, "John", "+37368521164", null, null);
+        UserEntity user = new UserEntity(1, null, "John", "+37368521164", null, null, null);
         RoleEntity newRole1 = new RoleEntity(1, "Admin");
         RoleEntity newRole2 = new RoleEntity(2, "User");
 
@@ -219,13 +219,13 @@ class UserServiceTest {
     void updateUserRole_WhenUserRoleIsUpdatedAndEmailSent_ShouldSucceed() {
         ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("test@example.com", "Admin");
         RoleEntity roleEntity = new RoleEntity(1, "User");
-        UserEntity userEntity = new UserEntity(1, null, "John", "+37368521164", roleEntity, null);
+        UserEntity userEntity = new UserEntity(1, null, "John", "+37368521164", roleEntity, null, null);
         CredentialsEntity credentialsEntity = new CredentialsEntity(1, userEntity, "test@example.com", "Password");
         Role role = new Role("Admin");
         User user = new User(1, "John", "+37368521164", role);
 
         userEntity.setCredential(credentialsEntity);
-        UserEntity savedUserEntity = new UserEntity(1, credentialsEntity, "John", "+37368521164", new RoleEntity(2, "Admin"), null);
+        UserEntity savedUserEntity = new UserEntity(1, credentialsEntity, "John", "+37368521164", new RoleEntity(2, "Admin"), null, null);
 
         when(userRepository.findByCredential_Email("test@example.com")).thenReturn(Optional.of(userEntity));
         when(roleRepository.findRoleEntityByName("Admin")).thenReturn(Optional.of(new RoleEntity(2, "Admin")));
