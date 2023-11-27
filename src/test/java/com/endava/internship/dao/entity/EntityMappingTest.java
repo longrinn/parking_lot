@@ -32,7 +32,7 @@ public class EntityMappingTest {
 
     @BeforeEach
     public void setup() {
-        PARKING_LOT = new ParkingLotEntity(null, "Lot 1", "123 Main St", LocalTime.of(8, 0), LocalTime.of(20, 0), null, null, null);
+        PARKING_LOT = new ParkingLotEntity(null, "Lot 1", "123 Main St", LocalTime.of(8, 0), LocalTime.of(20, 0), true, null, null, null);
         entityManager.persist(PARKING_LOT);
 
         PARKING_LEVEL = new ParkingLevelEntity(null, PARKING_LOT, 1, 50, null);
@@ -157,7 +157,7 @@ public class EntityMappingTest {
 
     @Test
     public void testUserParkingLotRelationship() {
-        ParkingLotEntity parkingLot2 = new ParkingLotEntity(null, "Lot 2", "456 Elm St", LocalTime.of(9, 0), LocalTime.of(21, 0), null, null, null);
+        ParkingLotEntity parkingLot2 = new ParkingLotEntity(null, "Lot 2", "456 Elm St", LocalTime.of(9, 0), LocalTime.of(21, 0), true, null, null, null);
         entityManager.persist(PARKING_LOT);
         entityManager.persist(parkingLot2);
 

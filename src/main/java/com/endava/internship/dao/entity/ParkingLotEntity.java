@@ -46,6 +46,9 @@ public class ParkingLotEntity {
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
+    @NotNull
+    private boolean state;
+
     @OneToMany(mappedBy = "parkingLot")
     private Set<WorkingTimeEntity> workingTimes;
 
@@ -54,5 +57,4 @@ public class ParkingLotEntity {
 
     @ManyToMany(mappedBy = "parking_lots")
     private Set<UserEntity> users;
-
 }

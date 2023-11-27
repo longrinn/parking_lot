@@ -3,6 +3,7 @@ package com.endava.internship.infrastructure.mapper;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.endava.internship.infrastructure.domain.Role;
 import com.endava.internship.infrastructure.domain.User;
@@ -12,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class DtoMapperImplTest {
 
     private final DtoMapper dtoMapper = Mappers.getMapper(DtoMapper.class);

@@ -27,7 +27,7 @@ public class WorkingTimeConstraintsTest {
 
     @BeforeEach
     public void setUp() {
-        PARKING_LOT_ENTITY = new ParkingLotEntity(null, "Lot 1", "123 Main St", LocalTime.of(8, 0), LocalTime.of(20, 0), null, null, null);
+        PARKING_LOT_ENTITY = new ParkingLotEntity(null, "Lot 1", "123 Main St", LocalTime.of(8, 0), LocalTime.of(20, 0), true, null, null, null);
         entityManager.persist(PARKING_LOT_ENTITY);
     }
 

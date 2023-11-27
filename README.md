@@ -1,6 +1,7 @@
 # Parking lot
 Parking lot spring boot application with postgreSQL database in docker
 
+- [Application Configuration](#application-configuration)
 - [Database configuration](#database-configuration)
 - [Populate empty database with tables](#populate-empty-database-with-tables)
   - [Database connection in IntelliJ Idea](#database-connection-in-intellij-idea)
@@ -8,6 +9,21 @@ Parking lot spring boot application with postgreSQL database in docker
     - [From Terminal](#from-terminal)
     - [From Maven plugins](#from-maven-plugins)
   - [Verifying the Setup](#verifying-the-setup)
+
+## Application Configuration
+To start working with application, consider to don one of the next options:
+- Create .env file into src/main/resources with next properties:
+    ```text
+    flyway.url=
+    flyway.user=
+    flyway.password=
+    ```
+- Add environment variables:
+    ```text
+    FLYWAY_URL=
+    FLYWAY_USER=
+    FLYWAY_PASSWORD=
+    ```
 
 ## Database configuration
 ### 1. Open the terminal where your docker-compose.yaml file is located

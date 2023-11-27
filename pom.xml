@@ -14,13 +14,6 @@
 	<packaging>war</packaging>
 	<name>Parking Lot</name>
 	<description>Endava internship project &quot;Parking Lot&quot; for autumn 2023</description>
-	<properties>
-		<java.version>17</java.version>
-
-		<flyway-db.user>postgres</flyway-db.user>
-		<flyway-db.password>postgres</flyway-db.password>
-		<flyway-db.url>jdbc:postgresql://localhost:5432/parking_lot_database</flyway-db.url>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -88,7 +81,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
-	</dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
@@ -101,9 +98,10 @@
 				<artifactId>flyway-maven-plugin</artifactId>
 				<version>8.5.8</version>
 				<configuration>
-					<url>${flyway-db.url}</url>
-					<user>${flyway-db.user}</user>
-					<password>${flyway-db.password}</password>
+					<url>${flyway.url}</url>
+					<user>${flyway.user}</user>
+					<password>${flyway.password}</password>
+					<configFiles>src/main/resources/.env</configFiles>
 				</configuration>
 			</plugin>
 			<plugin>

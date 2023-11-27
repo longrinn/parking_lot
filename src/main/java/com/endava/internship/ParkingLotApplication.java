@@ -2,8 +2,10 @@ package com.endava.internship;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
+@PropertySource(value = "classpath:.env")
 public class ParkingLotApplication {
 
     public static void main(String[] args) {
