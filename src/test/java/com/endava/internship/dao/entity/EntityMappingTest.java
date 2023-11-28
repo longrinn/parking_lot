@@ -139,15 +139,15 @@ public class EntityMappingTest {
         parkingSpot.setParkingLevel(PARKING_LEVEL);
         entityManager.persist(parkingSpot);
 
-        user.setParking_spot(parkingSpot);
+        user.setParkingSpot(parkingSpot);
 
         entityManager.flush();
         entityManager.clear();
 
         final UserEntity retrievedUser = entityManager.find(UserEntity.class, user.getId());
         assertNotNull(retrievedUser);
-        assertNotNull(retrievedUser.getParking_spot());
-        assertEquals("A1", retrievedUser.getParking_spot().getName());
+        assertNotNull(retrievedUser.getParkingSpot());
+        assertEquals("A1", retrievedUser.getParkingSpot().getName());
 
         final ParkingSpotEntity retrievedSpot = entityManager.find(ParkingSpotEntity.class, parkingSpot.getId());
         assertNotNull(retrievedSpot);
@@ -168,8 +168,8 @@ public class EntityMappingTest {
         parkingLots.add(PARKING_LOT);
         parkingLots.add(parkingLot2);
 
-        USER_ENTITY.setParking_lots(parkingLots);
-        user2.setParking_lots(parkingLots);
+        USER_ENTITY.setParkingLots(parkingLots);
+        user2.setParkingLots(parkingLots);
 
         entityManager.flush();
         entityManager.clear();
@@ -178,8 +178,8 @@ public class EntityMappingTest {
         UserEntity retrievedUser2 = entityManager.find(UserEntity.class, user2.getId());
         assertNotNull(retrievedUser1);
         assertNotNull(retrievedUser2);
-        assertEquals(2, retrievedUser1.getParking_lots().size());
-        assertEquals(2, retrievedUser2.getParking_lots().size());
+        assertEquals(2, retrievedUser1.getParkingLots().size());
+        assertEquals(2, retrievedUser2.getParkingLots().size());
 
         final ParkingLotEntity retrievedLot1 = entityManager.find(ParkingLotEntity.class, PARKING_LOT.getId());
         final ParkingLotEntity retrievedLot2 = entityManager.find(ParkingLotEntity.class, parkingLot2.getId());

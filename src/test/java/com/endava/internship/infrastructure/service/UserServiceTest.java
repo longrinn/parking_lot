@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.endava.internship.dao.entity.CredentialsEntity;
 import com.endava.internship.dao.entity.RoleEntity;
 import com.endava.internship.dao.entity.UserEntity;
+import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.RoleRepository;
 import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.infrastructure.domain.Credentials;
@@ -53,6 +54,9 @@ class UserServiceTest {
 
     @Mock
     private RoleRepository roleRepository;
+
+    @Mock
+    private ParkingLotRepository parkingLotRepository;
 
     @Mock
     private DaoMapper daoMapper;
@@ -239,4 +243,5 @@ class UserServiceTest {
         verify(roleRepository).findRoleEntityByName("Admin");
         verify(userRoleChangeEmailListener).handleUserRoleChangeEvent("test@example.com");
     }
+
 }

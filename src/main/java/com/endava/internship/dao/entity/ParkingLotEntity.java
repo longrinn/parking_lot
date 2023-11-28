@@ -57,6 +57,6 @@ public class ParkingLotEntity {
     @OneToMany(mappedBy = "parkingLot")
     private Set<ParkingLevelEntity> parkingLevels;
 
-    @ManyToMany(mappedBy = "parking_lots")
+    @ManyToMany(mappedBy = "parkingLots")
     private Set<UserEntity> users;
 }

@@ -54,7 +54,7 @@ public class UserEntity implements Serializable {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "spot_id")
     )
-    private ParkingSpotEntity parking_spot;
+    private ParkingSpotEntity parkingSpot;
 
     @ManyToMany
     @JoinTable(
@@ -62,5 +62,5 @@ public class UserEntity implements Serializable {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "parking_lot_id")
     )
-    private Set<ParkingLotEntity> parking_lots;
+    private Set<ParkingLotEntity> parkingLots;
 }

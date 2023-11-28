@@ -10,33 +10,48 @@ import org.springframework.transaction.annotation.Transactional;
 import com.endava.internship.dao.entity.ParkingLevelEntity;
 import com.endava.internship.dao.entity.ParkingLotEntity;
 import com.endava.internship.dao.entity.ParkingSpotEntity;
+import com.endava.internship.dao.entity.UserEntity;
 import com.endava.internship.dao.entity.WorkingTimeEntity;
 import com.endava.internship.dao.repository.ParkingLevelRepository;
 import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.ParkingSpotRepository;
+import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.dao.repository.WorkingTimeRepository;
 import com.endava.internship.infrastructure.domain.ParkingLevel;
 import com.endava.internship.infrastructure.domain.ParkingLot;
 import com.endava.internship.infrastructure.domain.ParkingSpot;
+import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.domain.WorkingTime;
+import com.endava.internship.infrastructure.exception.EntityAlreadyLinkedException;
+import com.endava.internship.infrastructure.listeners.UserLinkToParkLotListener;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.CreateParkingLotResponse;
 import com.endava.internship.web.dto.ParkingLevelDto;
+import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
+import com.endava.internship.web.request.LinkToParkLotRequest;
 
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import static com.endava.internship.infrastructure.util.ParkingLotConstants.ENTITIES_ALREADY_LINKED;
+import static com.endava.internship.infrastructure.util.ParkingLotConstants.PARKING_LOT_NAME_NOT_FOUND_ERROR_MESSAGE;
+import static com.endava.internship.infrastructure.util.ParkingLotConstants.USER_EMAIL_NOT_FOUND_ERROR_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
 public class ParkingLotServiceImpl implements ParkingLotService {
+
     private final ParkingLotRepository parkingLotRepository;
     private final ParkingLevelRepository parkingLevelRepository;
     private final ParkingSpotRepository parkingSpotRepository;
     private final WorkingTimeRepository workingTimeRepository;
+    private final UserRepository userRepository;
+    private final UserLinkToParkLotListener userLinkToParkLotListener;
     private final DaoMapper daoMapper;
     private final DtoMapper dtoMapper;
 
@@ -123,5 +138,41 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         } else {
             throw new EntityExistsException("Parking Lot with the specified name already exists");
         }
+    }
+
+    @Override
+    @Transactional
+    public UserToParkingLotDto linkUserToParkingLot(LinkToParkLotRequest linkToParkLotRequest) {
+
+        final String parkingLotName = linkToParkLotRequest.getParkingLotName();
+        final String userEmail = linkToParkLotRequest.getUserEmail();
+
+        final UserEntity userEntity = userRepository.findByCredential_Email(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(USER_EMAIL_NOT_FOUND_ERROR_MESSAGE, userEmail)));
+
+        final ParkingLotEntity parkingLotEntity = parkingLotRepository.findByName(parkingLotName)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(PARKING_LOT_NAME_NOT_FOUND_ERROR_MESSAGE, parkingLotName)));
+
+        if (userEntity.getParkingLots().contains(parkingLotEntity)) {
+            throw new EntityAlreadyLinkedException(String.format(ENTITIES_ALREADY_LINKED));
+        }
+
+        userEntity.getParkingLots().add(parkingLotEntity);
+        userRepository.save(userEntity);
+
+        User userDomain = daoMapper.map(userEntity);
+        ParkingLot parkingLotDomain = daoMapper.map(parkingLotEntity);
+
+        final Set<ParkingLotEntity> userNewParkingLots = userEntity.getParkingLots();
+
+        UserToParkingLotDto emailDetails = new UserToParkingLotDto(userEntity.getCredential().getEmail(), userEntity.getName(), parkingLotEntity.getName(), parkingLotEntity.getAddress());
+
+        if (userNewParkingLots.contains(parkingLotEntity)) {
+            userLinkToParkLotListener.handleUserLinkToParkLotEvent(emailDetails);
+        }
+
+        return dtoMapper.map(userDomain, parkingLotDomain, userEmail);
     }
 }

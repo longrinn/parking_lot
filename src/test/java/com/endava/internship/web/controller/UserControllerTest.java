@@ -86,4 +86,5 @@ class UserControllerTest {
 
         verify(userService).updateUserRole(any());
     }
+
 }

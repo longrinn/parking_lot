@@ -77,4 +77,12 @@ public class CustomExceptionHandler {
                 request.getDescription(false));
         return ResponseEntity.status(CONFLICT).body(errorDetails);
     }
+
+    @ExceptionHandler(EntityAlreadyLinkedException.class)
+    public ResponseEntity<ErrorDetails> handleAlreadyLinkedEntitiesException(EntityAlreadyLinkedException ex, WebRequest request) {
+        final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
+                request.getDescription(false));
+
+        return ResponseEntity.status(BAD_REQUEST).body(errorDetails);
+    }
 }

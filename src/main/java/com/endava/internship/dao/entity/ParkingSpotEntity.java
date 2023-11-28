@@ -40,6 +40,6 @@ public class ParkingSpotEntity {
     @Column(nullable = false)
     private String type;
 
-    @OneToOne(mappedBy = "parking_spot")
+    @OneToOne(mappedBy = "parkingSpot")
     private UserEntity user;
 }

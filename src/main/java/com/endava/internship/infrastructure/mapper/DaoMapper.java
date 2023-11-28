@@ -18,7 +18,6 @@ import com.endava.internship.infrastructure.domain.ParkingSpot;
 import com.endava.internship.infrastructure.domain.Role;
 import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.domain.WorkingTime;
-import com.endava.internship.web.dto.WorkingTimeDto;
 
 @Mapper(componentModel = "spring")
 public interface DaoMapper {

@@ -9,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.validation.ConstraintViolationException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -46,7 +45,7 @@ public class WorkingTimeConstraintsTest {
     public void whenNameDayIsNull_thenThrowException() {
         WorkingTimeEntity workingTime = new WorkingTimeEntity(null, PARKING_LOT_ENTITY, null);
 
-        assertThrows(ConstraintViolationException.class, () -> {
+        assertThrows(jakarta.validation.ConstraintViolationException.class, () -> {
             entityManager.persist(workingTime);
         });
     }
@@ -55,7 +54,7 @@ public class WorkingTimeConstraintsTest {
     public void whenParkingLotIsNull_thenThrowException() {
         WorkingTimeEntity workingTime = new WorkingTimeEntity(null, null, "Monday");
 
-        assertThrows(ConstraintViolationException.class, () -> {
+        assertThrows(jakarta.validation.ConstraintViolationException.class, () -> {
             entityManager.persist(workingTime);
         });
     }
