@@ -160,7 +160,7 @@ class UserServiceTest {
         ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("email@.com", "Admin");
         RoleEntity roleEntity = new RoleEntity(1, "User");
         UserEntity userEntity = new UserEntity(1, null, "John", "+37368521164", roleEntity, null, null);
-        User user = new User(1, "name", "+37326548958", new Role("Admin"));
+        User user = new User(1, "name", "+37326548958", new Role("Admin"), null);
 
         when(userRepository.findByCredential_Email("email@.com")).thenReturn(Optional.of(userEntity));
         when(roleRepository.findRoleEntityByName("Admin")).thenReturn(Optional.of(new RoleEntity(2, "Admin")));
@@ -222,7 +222,7 @@ class UserServiceTest {
         UserEntity userEntity = new UserEntity(1, null, "John", "+37368521164", roleEntity, null, null);
         CredentialsEntity credentialsEntity = new CredentialsEntity(1, userEntity, "test@example.com", "Password");
         Role role = new Role("Admin");
-        User user = new User(1, "John", "+37368521164", role);
+        User user = new User(1, "John", "+37368521164", role, null);
 
         userEntity.setCredential(credentialsEntity);
         UserEntity savedUserEntity = new UserEntity(1, credentialsEntity, "John", "+37368521164", new RoleEntity(2, "Admin"), null, null);

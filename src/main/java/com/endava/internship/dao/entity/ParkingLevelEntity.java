@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,13 +25,14 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class ParkingLevelEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @NotNull
+
     @ManyToOne
     @JoinColumn(name = "parking_lot_id", nullable = false)
     private ParkingLotEntity parkingLot;

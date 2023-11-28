@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestControllerAdvice
@@ -67,5 +69,12 @@ public class CustomExceptionHandler {
                 .map(error -> new ValidationExceptionResponse(((FieldError) error).getField(), error.getDefaultMessage()))
                 .toList();
         return ResponseEntity.status(BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<ErrorDetails> handleEntityExistsException(EntityNotFoundException ex, WebRequest request) {
+        final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
+                request.getDescription(false));
+        return ResponseEntity.status(CONFLICT).body(errorDetails);
     }
 }

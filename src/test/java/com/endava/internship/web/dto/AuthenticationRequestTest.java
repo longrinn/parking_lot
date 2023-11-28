@@ -15,6 +15,8 @@ import jakarta.validation.ValidatorFactory;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.endava.internship.web.request.AuthenticationRequest;
+
 public class AuthenticationRequestTest {
 
     private Validator validator;

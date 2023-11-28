@@ -35,7 +35,7 @@ class DtoMapperImplTest {
 
     @Test
     void testMapWithNullInput() {
-        UserUpdatedRoleResponse result = dtoMapper.map(null);
+        UserUpdatedRoleResponse result = dtoMapper.map((User) null);
 
         assertNull(result);
     }

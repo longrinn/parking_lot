@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
-@PropertySource(value = "classpath:.env")
+@PropertySource(value = "classpath:.env", ignoreResourceNotFound = true)
 public class ParkingLotApplication {
 
     public static void main(String[] args) {

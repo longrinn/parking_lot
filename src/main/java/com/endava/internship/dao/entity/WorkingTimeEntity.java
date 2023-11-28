@@ -27,7 +27,6 @@ public class WorkingTimeEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-    @NotNull
     @ManyToOne
     @JoinColumn(name = "parking_lot_id", nullable = false)
     private ParkingLotEntity parkingLot;

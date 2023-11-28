@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ParkingLotEntity {
 
     @Id

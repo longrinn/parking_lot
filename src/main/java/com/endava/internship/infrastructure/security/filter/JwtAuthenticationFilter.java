@@ -19,7 +19,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static java.util.Collections.emptyList;
 
 @Component
 @RequiredArgsConstructor
@@ -44,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     final UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
                     final UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), emptyList());
+                            new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
 
                     if (SecurityContextHolder.getContext().getAuthentication() == null) {
                         SecurityContextHolder.getContext().setAuthentication(authToken);

@@ -18,6 +18,7 @@
 		<sonar.projectKey>parking-lot_internship-parking-lot-dev_AYwaWh2nC1WGiA2J8Jd7</sonar.projectKey>
   		<sonar.projectName>internship-parking-lot-dev</sonar.projectName>
   		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>

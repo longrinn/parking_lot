@@ -1,7 +1,5 @@
 package com.endava.internship.infrastructure.security;
 
-import java.util.Collections;
-
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +30,7 @@ public class AuthProviderImpl implements AuthenticationProvider {
             throw new BadCredentialsException("Invalid credentials");
         }
 
-        return new UsernamePasswordAuthenticationToken(userDetails, password, Collections.emptyList());
+        return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
     }
 
     @Override

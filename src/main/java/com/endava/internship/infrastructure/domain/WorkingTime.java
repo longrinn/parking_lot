@@ -3,15 +3,15 @@ package com.endava.internship.infrastructure.domain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-@Builder
 @AllArgsConstructor
-public class User {
+@Builder
+@Setter
+public class WorkingTime {
 
-    private Integer id;
-    private String name;
-    private String phone;
-    private Role role;
-    private ParkingSpot parkingSpot;
+    private ParkingLot parkingLot;
+
+    private String nameDay;
 }
