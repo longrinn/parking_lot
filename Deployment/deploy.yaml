@@ -1,0 +1,82 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    appgw.ingress.kubernetes.io/health-probe-status-codes: 200-499
+    nginx.ingress.kubernetes.io/whitelist-source-range: 193.33.93.43/32
+    appgw.ingress.kubernetes.io/ssl-redirect: 'true'
+    cert-manager.io/acme-challenge-type: http01
+    cert-manager.io/cluster-issuer: cert-manager-global
+    external-dns.alpha.kubernetes.io/hostname: parkinglot-be.app.mddinternship.com
+  labels:
+    app: test
+  name: test-ingres
+spec:
+  rules:
+    - host: parkinglot-be.app.mddinternship.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: test-service
+                port:
+                  number: 5000
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - parkinglot-be.app.mddinternship.com
+      secretName: pl-be-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-service
+spec:
+  selector:
+    # app.kubernetes.io/name: test
+    app: test
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 8080
+---
+apiVersion: v1
+data:
+  .dockerconfigjson: ewogICJhdXRocyI6IHsKICAgICJuZXh1cy50b29sLm1kZGludGVybnNoaXAuY29tIjogewogICAgICAiYXV0aCI6ICJZV1J0YVc0NmJtVjRkWE5CWkcxcGJnPT0iCiAgICB9CiAgfQp9Cg==
+kind: Secret
+metadata:
+  name: nexus-docker
+type: kubernetes.io/dockerconfigjson
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test
+  labels:
+    app: test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+        - name: parking-lot
+          image: nexus.tool.mddinternship.com/repository/parking-lot:main
+          imagePullPolicy: Always
+          env:
+            - name: flyway.url
+              value: "jdbc:postgresql://postgres-postgresql.postgresql.svc:5432/Test"
+            - name: flyway.user
+              value: "test"
+            - name: flyway.password
+              value: "nezabudem228" 
+          ports:
+            - containerPort: 8080
+      imagePullSecrets:
+        - name: nexus-docker
