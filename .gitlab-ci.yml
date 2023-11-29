@@ -16,7 +16,10 @@ sonarqube-check:
     # - ./mvnw clean package sonar:sonar 
     # - ./mvnw flyway:migrate
     - mvn verify sonar:sonar -Dmaven.test.failure.ignore=true
+<<<<<<< HEAD
     # - ./mvnw clean package && java -jar target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war
+=======
+>>>>>>> 6902766 (Update .gitlab-ci.yml file)
   allow_failure: true
   only:
     - merge_requests
