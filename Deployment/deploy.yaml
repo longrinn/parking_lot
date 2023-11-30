@@ -69,13 +69,13 @@ spec:
         - name: parking-lot
           image: nexus.tool.mddinternship.com/repository/parking-lot:main
           imagePullPolicy: Always
-          env:
-            - name: flyway.url
-              value: "jdbc:postgresql://postgres-postgresql.postgresql.svc:5432/Test"
-            - name: flyway.user
-              value: "test"
-            - name: flyway.password
-              value: "nezabudem228" 
+          # env:
+          #   - name: flyway.url
+          #     value: "jdbc:postgresql://postgres-postgresql.postgresql.svc:5432/ParkingLot"
+          #   - name: flyway.user
+          #     value: "parkinglot"
+          #   - name: flyway.password
+          #     value: "aKdsjf&#fa@#hG" 
           ports:
             - containerPort: 8080
       imagePullSecrets:

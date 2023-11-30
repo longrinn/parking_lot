@@ -1,21 +1,21 @@
 stages:
-  # - sonarqube-check
+  - sonarqube-check
   - build_image
 
-# sonarqube-check:
-#   stage: sonarqube-check
-#   image: maven:3-eclipse-temurin-17
-#   variables:
-#     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  
-#     GIT_DEPTH: "0" 
-#   script:
-#     - mvn verify sonar:sonar -Dmaven.test.failure.ignore=true
-#   allow_failure: true
-#   only:
-#     - merge_requests
-#     - master
-#     - main
-#     - develop
+sonarqube-check:
+  stage: sonarqube-check
+  image: maven:3-eclipse-temurin-17
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  
+    GIT_DEPTH: "0" 
+  script:
+    - mvn verify sonar:sonar -Dmaven.test.failure.ignore=true
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+    - main
+    - develop
 
 build-backend:
   stage: build_image
