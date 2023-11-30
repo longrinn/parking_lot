@@ -72,7 +72,7 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler(EntityExistsException.class)
-    public ResponseEntity<ErrorDetails> handleEntityExistsException(EntityNotFoundException ex, WebRequest request) {
+    public ResponseEntity<ErrorDetails> handleEntityExistsException(EntityExistsException ex, WebRequest request) {
         final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
                 request.getDescription(false));
         return ResponseEntity.status(CONFLICT).body(errorDetails);

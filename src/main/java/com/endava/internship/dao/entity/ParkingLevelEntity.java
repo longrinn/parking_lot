@@ -32,7 +32,7 @@ public class ParkingLevelEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Integer id;
 
-
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "parking_lot_id", nullable = false)
     private ParkingLotEntity parkingLot;
