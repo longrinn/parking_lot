@@ -12,7 +12,7 @@ RUN  ./mvnw clean package
 
 FROM openjdk:17-jdk-alpine
 
-COPY --from=builder /target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war ./app.war
+COPY --from=builder ./target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war ./app.war
 
 COPY . .
 
