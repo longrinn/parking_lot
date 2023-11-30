@@ -8,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -50,12 +49,6 @@ public class ParkingLotEntity {
 
     @NotNull
     private boolean state;
-
-    @OneToMany(mappedBy = "parkingLot")
-    private Set<WorkingTimeEntity> workingTimes;
-
-    @OneToMany(mappedBy = "parkingLot")
-    private Set<ParkingLevelEntity> parkingLevels;
 
     @ManyToMany(mappedBy = "parkingLots")
     private Set<UserEntity> users;

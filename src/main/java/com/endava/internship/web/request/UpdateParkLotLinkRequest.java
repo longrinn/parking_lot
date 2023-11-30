@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class LinkToParkLotRequest {
+public class UpdateParkLotLinkRequest {
 
     @Email(message = "Pattern of the email is wrong")
     @NotBlank(message = "User email cannot be null")

@@ -24,7 +24,7 @@ import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
-import com.endava.internship.web.request.LinkToParkLotRequest;
+import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -86,11 +86,11 @@ class ParkingLotServiceImplTest {
 
     @Test
     void linkUserToParkingLotSuccessful() {
-        LinkToParkLotRequest request = new LinkToParkLotRequest("user@example.com", "ParkingLotName");
+        UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
         RoleEntity roleEntity = new RoleEntity(1, "User");
         CredentialsEntity credentialsEntity = new CredentialsEntity(1, null, "user@example.com", "Password");
         UserEntity userEntity = new UserEntity(1, credentialsEntity, "John", "868521164", roleEntity, null, new HashSet<>());
-        ParkingLotEntity parkingLotEntity = new ParkingLotEntity(1, "ParkingLotName", "address", LocalTime.of(8, 0), LocalTime.of(20, 0), false, null, null, null);
+        ParkingLotEntity parkingLotEntity = new ParkingLotEntity(1, "ParkingLotName", "address", LocalTime.of(8, 0), LocalTime.of(20, 0), false, null);
 
         when(userRepository.findByCredential_Email(request.getUserEmail())).thenReturn(Optional.of(userEntity));
         when(parkingLotRepository.findByName(request.getParkingLotName())).thenReturn(Optional.of(parkingLotEntity));
@@ -105,7 +105,7 @@ class ParkingLotServiceImplTest {
 
     @Test
     void linkNonExistentUserToParkingLot_throwsEntityNotFoundException() {
-        LinkToParkLotRequest request = new LinkToParkLotRequest("user@example.com", "ParkingLotName");
+        UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
 
         when(userRepository.findByCredential_Email(request.getUserEmail())).thenReturn(Optional.empty());
 
@@ -114,7 +114,7 @@ class ParkingLotServiceImplTest {
 
     @Test
     void linkUserToNonExistentParkingLot_throwsEntityLotNotFoundException() {
-        LinkToParkLotRequest request = new LinkToParkLotRequest("user@example.com", "ParkingLotName");
+        UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
         RoleEntity roleEntity = new RoleEntity(1, "User");
         UserEntity userEntity = new UserEntity(1, null, "John", "868521164", roleEntity, null, null);
 
@@ -126,11 +126,11 @@ class ParkingLotServiceImplTest {
 
     @Test
     void linkUserToParkingLotEntitiesMoreTimes_throwsEntityAlreadyLinkedException() {
-        LinkToParkLotRequest request = new LinkToParkLotRequest("user@example.com", "ParkingLotName");
+        UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
         RoleEntity roleEntity = new RoleEntity(1, "User");
         CredentialsEntity credentialsEntity = new CredentialsEntity(1, null, "user@example.com", "Password");
         UserEntity userEntity = new UserEntity(1, credentialsEntity, "John", "868521164", roleEntity, null, new HashSet<>());
-        ParkingLotEntity parkingLotEntity = new ParkingLotEntity(1, "ParkingLotName", "address", LocalTime.of(8, 0), LocalTime.of(20, 0), false, null, null, null);
+        ParkingLotEntity parkingLotEntity = new ParkingLotEntity(1, "ParkingLotName", "address", LocalTime.of(8, 0), LocalTime.of(20, 0), false, null);
 
         when(userRepository.findByCredential_Email(request.getUserEmail())).thenReturn(Optional.of(userEntity));
         when(parkingLotRepository.findByName(request.getParkingLotName())).thenReturn(Optional.of(parkingLotEntity));

@@ -38,7 +38,7 @@ public class ParkingLotConstraintsTest {
 
     @Test
     public void parkingLotIsValid_thenSuccess() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null);
         parkingLotRepository.save(parking_lot_entity);
 
         final Optional<ParkingLotEntity> found = parkingLotRepository.findById(parking_lot_entity.getId());
@@ -47,7 +47,7 @@ public class ParkingLotConstraintsTest {
 
     @Test
     public void nameIsNull_thenThrowException() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, null, "123 Main St", START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, null, "123 Main St", START_TIME, END_TIME, true, null);
 
         assertThrows(ConstraintViolationException.class, () -> {
             parkingLotRepository.save(parking_lot_entity);
@@ -56,7 +56,7 @@ public class ParkingLotConstraintsTest {
 
     @Test
     public void addressIsNull_thenThrowException() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", null, START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", null, START_TIME, END_TIME, true, null);
 
         assertThrows(ConstraintViolationException.class, () -> {
             parkingLotRepository.save(parking_lot_entity);
@@ -65,7 +65,7 @@ public class ParkingLotConstraintsTest {
 
     @Test
     public void startTimeIsNull_thenThrowException() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", null, END_TIME, true, null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", null, END_TIME, true, null);
 
         assertThrows(ConstraintViolationException.class, () -> {
             parkingLotRepository.save(parking_lot_entity);
@@ -74,7 +74,7 @@ public class ParkingLotConstraintsTest {
 
     @Test
     public void endTimeIsNull_thenThrowException() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, null, true,null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, null, true, null);
 
         assertThrows(ConstraintViolationException.class, () -> {
             parkingLotRepository.save(parking_lot_entity);
@@ -83,7 +83,7 @@ public class ParkingLotConstraintsTest {
 
     @Test
     public void workingTimesAreHandledCorrectly() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null);
         parkingLotRepository.save(parking_lot_entity);
 
         WorkingTimeEntity workingTime = new WorkingTimeEntity();
@@ -93,19 +93,17 @@ public class ParkingLotConstraintsTest {
 
         Set<WorkingTimeEntity> workingTimes = new HashSet<>();
         workingTimes.add(workingTime);
-        parking_lot_entity.setWorkingTimes(workingTimes);
+
 
         final Optional<ParkingLotEntity> foundOptional = parkingLotRepository.findById(parking_lot_entity.getId());
 
         final ParkingLotEntity found = foundOptional.get();
         assertNotNull(found);
-        assertNotNull(found.getWorkingTimes());
-        assertFalse(found.getWorkingTimes().isEmpty());
     }
 
     @Test
     public void updateParkingLotEntity_thenSuccess() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null);
 
         parkingLotRepository.save(parking_lot_entity);
         final ParkingLotEntity savedEntity = parkingLotRepository.findById(parking_lot_entity.getId()).get();
@@ -127,10 +125,10 @@ public class ParkingLotConstraintsTest {
 
     @Test
     public void whenSavingDuplicateName_thenThrowException() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null);
 
         parkingLotRepository.save(parking_lot_entity);
-        final ParkingLotEntity duplicateNameEntity = new ParkingLotEntity(null, "Lot 1", "Different Address", START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity duplicateNameEntity = new ParkingLotEntity(null, "Lot 1", "Different Address", START_TIME, END_TIME, true, null);
 
         assertThrows(DataIntegrityViolationException.class, () -> {
             parkingLotRepository.save(duplicateNameEntity);
@@ -139,10 +137,10 @@ public class ParkingLotConstraintsTest {
 
     @Test
     public void whenSavingDuplicateAddress_thenThrowException() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null);
 
         parkingLotRepository.save(parking_lot_entity);
-        final ParkingLotEntity duplicateAddressEntity = new ParkingLotEntity(null, "Different Name", "123 Main St", START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity duplicateAddressEntity = new ParkingLotEntity(null, "Different Name", "123 Main St", START_TIME, END_TIME, true, null);
 
         assertThrows(DataIntegrityViolationException.class, () -> {
             parkingLotRepository.save(duplicateAddressEntity);
@@ -151,7 +149,7 @@ public class ParkingLotConstraintsTest {
 
     @Test
     public void whenDeletedParkingLot_thenItIsNoLongerAvailable() {
-        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null, null, null);
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null);
 
         parkingLotRepository.save(parking_lot_entity);
         assertTrue(parkingLotRepository.findById(parking_lot_entity.getId()).isPresent());

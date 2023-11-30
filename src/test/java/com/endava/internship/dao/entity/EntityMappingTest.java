@@ -32,7 +32,7 @@ public class EntityMappingTest {
 
     @BeforeEach
     public void setup() {
-        PARKING_LOT = new ParkingLotEntity(null, "Lot 1", "123 Main St", LocalTime.of(8, 0), LocalTime.of(20, 0), true, null, null, null);
+        PARKING_LOT = new ParkingLotEntity(null, "Lot 1", "123 Main St", LocalTime.of(8, 0), LocalTime.of(20, 0), true, null);
         entityManager.persist(PARKING_LOT);
 
         PARKING_LEVEL = new ParkingLevelEntity(null, PARKING_LOT, 1, 50, null);
@@ -71,15 +71,12 @@ public class EntityMappingTest {
     public void testParkingLotAndWorkingTimesRelationship() {
         final Set<WorkingTimeEntity> workingTimes = new HashSet<>();
         workingTimes.add(WORKING_TIME);
-        PARKING_LOT.setWorkingTimes(workingTimes);
 
         entityManager.flush();
         entityManager.clear();
 
         final ParkingLotEntity retrievedLot = entityManager.find(ParkingLotEntity.class, PARKING_LOT.getId());
         assertNotNull(retrievedLot);
-        assertEquals(1, retrievedLot.getWorkingTimes().size());
-        assertEquals("Monday", retrievedLot.getWorkingTimes().iterator().next().getNameDay());
 
         final WorkingTimeEntity retrievedWorkingTime = entityManager.find(WorkingTimeEntity.class, WORKING_TIME.getId());
         assertNotNull(retrievedWorkingTime);
@@ -91,18 +88,12 @@ public class EntityMappingTest {
     public void testParkingLotAndParkingLevelRelationship() {
         final Set<ParkingLevelEntity> parkingLevels = new HashSet<>();
         parkingLevels.add(PARKING_LEVEL);
-        PARKING_LOT.setParkingLevels(parkingLevels);
 
         entityManager.flush();
         entityManager.clear();
 
         final ParkingLotEntity retrievedLot = entityManager.find(ParkingLotEntity.class, PARKING_LOT.getId());
         assertNotNull(retrievedLot);
-        assertEquals(1, retrievedLot.getParkingLevels().size());
-
-        final ParkingLevelEntity retrievedLevel = retrievedLot.getParkingLevels().iterator().next();
-        assertEquals(1, retrievedLevel.getFloor());
-        assertEquals("Lot 1", retrievedLevel.getParkingLot().getName());
     }
 
     @Test
@@ -157,7 +148,7 @@ public class EntityMappingTest {
 
     @Test
     public void testUserParkingLotRelationship() {
-        ParkingLotEntity parkingLot2 = new ParkingLotEntity(null, "Lot 2", "456 Elm St", LocalTime.of(9, 0), LocalTime.of(21, 0), true, null, null, null);
+        ParkingLotEntity parkingLot2 = new ParkingLotEntity(null, "Lot 2", "456 Elm St", LocalTime.of(9, 0), LocalTime.of(21, 0), true, null);
         entityManager.persist(PARKING_LOT);
         entityManager.persist(parkingLot2);
 

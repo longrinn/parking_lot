@@ -9,7 +9,7 @@ import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.CreateParkingLotResponse;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
-import com.endava.internship.web.request.LinkToParkLotRequest;
+import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +29,7 @@ public class ParkingLotController {
     }
 
     @PostMapping("/link-park-lot")
-    public ResponseEntity<UserToParkingLotDto> linkUserToParkLot(@RequestBody LinkToParkLotRequest request) {
+    public ResponseEntity<UserToParkingLotDto> linkUserToParkLot(@RequestBody UpdateParkLotLinkRequest request) {
         return ResponseEntity.status(OK).body(parkingLotService.linkUserToParkingLot(request));
     }
 }

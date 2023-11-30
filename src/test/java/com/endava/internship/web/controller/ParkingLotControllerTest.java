@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.UserToParkingLotDto;
-import com.endava.internship.web.request.LinkToParkLotRequest;
+import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -41,14 +41,14 @@ public class ParkingLotControllerTest {
     @Test
     @WithMockUser
     void linkUserToParkLotShouldReturnOkStatus() throws Exception {
-        LinkToParkLotRequest linkToParkLotRequest = new LinkToParkLotRequest("parkingLotName", "userEmail@example.com");
+        UpdateParkLotLinkRequest updateParkLotLinkRequest = new UpdateParkLotLinkRequest("parkingLotName", "userEmail@example.com");
         UserToParkingLotDto userToParkingLotDto = new UserToParkingLotDto("userEmail@example.com", "UserName", "ParkingLotName", "ParkingLotAddress");
 
         when(parkingLotService.linkUserToParkingLot(any())).thenReturn(userToParkingLotDto);
 
         mockMvc.perform(post("/link-park-lot")
                         .contentType(APPLICATION_JSON_VALUE)
-                        .content(objectMapper.writeValueAsString(linkToParkLotRequest)))
+                        .content(objectMapper.writeValueAsString(updateParkLotLinkRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(userToParkingLotDto)))
                 .andReturn();

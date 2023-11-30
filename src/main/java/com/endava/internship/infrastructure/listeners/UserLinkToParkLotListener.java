@@ -16,6 +16,20 @@ public class UserLinkToParkLotListener {
 
     @EventListener
     public void handleUserLinkToParkLotEvent(UserToParkingLotDto emailDetails) {
+        final String userName = emailDetails.getUserName();
+        final String parkingLotName = emailDetails.getParkingLotName();
+        final String parkingLotAddress = emailDetails.getParkingLotAddress();
 
+        String subject = "Linking to a Parking Lot";
+        String text = String.format("""
+                Dear %s,
+
+                You have been added as a user to the parking lot: "%s" located at address: "%s".
+
+                Regards,
+                Parking Lot Team
+                """, userName, parkingLotName, parkingLotAddress);
+
+        emailSenderService.sendEmail(emailDetails.getUserEmail(), subject, text);
     }
 }

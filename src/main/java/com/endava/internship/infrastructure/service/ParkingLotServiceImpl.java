@@ -32,7 +32,7 @@ import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
-import com.endava.internship.web.request.LinkToParkLotRequest;
+import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -142,10 +142,10 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Override
     @Transactional
-    public UserToParkingLotDto linkUserToParkingLot(LinkToParkLotRequest linkToParkLotRequest) {
+    public UserToParkingLotDto linkUserToParkingLot(UpdateParkLotLinkRequest updateParkLotLinkRequest) {
 
-        final String parkingLotName = linkToParkLotRequest.getParkingLotName();
-        final String userEmail = linkToParkLotRequest.getUserEmail();
+        final String parkingLotName = updateParkLotLinkRequest.getParkingLotName();
+        final String userEmail = updateParkLotLinkRequest.getUserEmail();
 
         final UserEntity userEntity = userRepository.findByCredential_Email(userEmail)
                 .orElseThrow(() -> new EntityNotFoundException(

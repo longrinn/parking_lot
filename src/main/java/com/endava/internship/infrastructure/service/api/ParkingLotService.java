@@ -3,10 +3,10 @@ package com.endava.internship.infrastructure.service.api;
 import com.endava.internship.web.dto.CreateParkingLotResponse;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
-import com.endava.internship.web.request.LinkToParkLotRequest;
+import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 public interface ParkingLotService {
     CreateParkingLotResponse createParkingLot(CreateParkingLotRequest createParkingLotRequest);
 
-    UserToParkingLotDto linkUserToParkingLot(LinkToParkLotRequest linkToParkLotRequest);
+    UserToParkingLotDto linkUserToParkingLot(UpdateParkLotLinkRequest updateParkLotLinkRequest);
 }
