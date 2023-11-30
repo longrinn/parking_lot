@@ -137,6 +137,7 @@
 		</plugins>
 	</build>
 </project>
+<!-- 
 <profile>
 <id>coverage</id>
 <build>
@@ -165,4 +166,4 @@
 		</execution>
 	</executions>
 </build>
-</profile>
+</profile> -->
