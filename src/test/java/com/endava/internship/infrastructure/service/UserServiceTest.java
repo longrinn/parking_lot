@@ -50,33 +50,23 @@ import static org.mockito.Mockito.when;
 class UserServiceTest {
 
     @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private RoleRepository roleRepository;
-
-    @Mock
-    private DaoMapper daoMapper;
-
-    @Mock
-    private DtoMapper dtoMapper;
-
-    @Mock
-    private AuthenticationManager authenticationManager;
-
-    @Mock
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Mock
     UserRoleChangeEmailListener userRoleChangeEmailListener;
-
     @Mock
     JwtUtils jwtUtils;
-
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private RoleRepository roleRepository;
+    @Mock
+    private DaoMapper daoMapper;
+    @Mock
+    private DtoMapper dtoMapper;
+    @Mock
+    private AuthenticationManager authenticationManager;
+    @Mock
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
     @InjectMocks
     private UserServiceImpl userService;
-
-
 
     @Test
     void registeredUserShouldBeAdded() {

@@ -25,16 +25,15 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class AuthProviderImplTest {
 
+    private final String email = "test@example.com";
+    private final String correctPassword = "correctPassword";
+    private final String wrongPassword = "wrongPassword";
     @Mock
     private UserDetailsService userDetailsService;
     @Mock
     private PasswordEncoder passwordEncoder;
     @InjectMocks
     private AuthProviderImpl authProvider;
-
-    private final String email = "test@example.com";
-    private final String correctPassword = "correctPassword";
-    private final String wrongPassword = "wrongPassword";
 
     private Authentication createMockAuthentication(String email, String password) {
         final Authentication authentication = mock(Authentication.class);

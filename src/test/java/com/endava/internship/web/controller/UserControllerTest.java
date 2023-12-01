@@ -76,7 +76,7 @@ class UserControllerTest {
     @Test
     @WithMockUser
     void updateUserRoleShouldReturnOkResponse() throws Exception {
-        ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("email@.com", "User");
+        ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("username@gmail.com", "User");
         RoleDto role = new RoleDto("Admin");
         UserUpdatedRoleResponse response = new UserUpdatedRoleResponse("username@gmail.com", role);
 

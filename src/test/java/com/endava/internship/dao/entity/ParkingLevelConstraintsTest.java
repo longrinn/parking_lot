@@ -1,5 +1,10 @@
 package com.endava.internship.dao.entity;
 
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +16,6 @@ import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.ParkingSpotRepository;
 
 import jakarta.validation.ConstraintViolationException;
-import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -26,17 +27,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 public class ParkingLevelConstraintsTest {
 
-    @Autowired
-    private ParkingLotRepository parkingLotRepository;
-
-    @Autowired
-    private ParkingLevelRepository parkingLevelRepository;
-
-    @Autowired
-    private ParkingSpotRepository parkingSpotRepository;
-
     private static ParkingLotEntity PARKING_LOT_ENTITY;
     private static ParkingLevelEntity PARKING_LEVEL_ENTITY;
+    @Autowired
+    private ParkingLotRepository parkingLotRepository;
+    @Autowired
+    private ParkingLevelRepository parkingLevelRepository;
+    @Autowired
+    private ParkingSpotRepository parkingSpotRepository;
 
     @BeforeEach
     public void setUp() {

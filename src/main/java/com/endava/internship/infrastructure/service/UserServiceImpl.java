@@ -15,7 +15,6 @@ import com.endava.internship.dao.entity.CredentialsEntity;
 import com.endava.internship.dao.entity.RoleEntity;
 import com.endava.internship.dao.entity.UserEntity;
 import com.endava.internship.dao.repository.ParkingLotRepository;
-import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.RoleRepository;
 import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.infrastructure.domain.Credentials;

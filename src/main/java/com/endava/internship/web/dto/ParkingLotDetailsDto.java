@@ -2,6 +2,7 @@ package com.endava.internship.web.dto;
 
 import java.time.LocalTime;
 import java.util.Set;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

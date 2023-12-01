@@ -1,5 +1,8 @@
 package com.endava.internship.dao.entity;
 
+import java.time.LocalTime;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +14,9 @@ import com.endava.internship.dao.repository.ParkingLevelRepository;
 import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.ParkingSpotRepository;
 
-import java.time.LocalTime;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -23,19 +24,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 public class ParkingSpotConstraintsTest {
 
-    @Autowired
-    private ParkingSpotRepository parkingSpotRepository;
-
-    @Autowired
-    private ParkingLevelRepository parkingLevelRepository;
-
-    @Autowired
-    private ParkingLotRepository parkingLotRepository;
-
     private static ParkingLotEntity PARKING_LOT_ENTITY;
     private static ParkingSpotEntity PARKING_SPOT_ENTITY;
     private static ParkingLevelEntity PARKING_LEVEL_ENTITY;
-
+    @Autowired
+    private ParkingSpotRepository parkingSpotRepository;
+    @Autowired
+    private ParkingLevelRepository parkingLevelRepository;
+    @Autowired
+    private ParkingLotRepository parkingLotRepository;
 
     @BeforeEach
     public void setUp() {
@@ -58,7 +55,7 @@ public class ParkingSpotConstraintsTest {
         final Optional<ParkingSpotEntity> found = parkingSpotRepository.findById(PARKING_SPOT_ENTITY.getId());
 
         assertTrue(found.isPresent());
-        assertEquals(null, found.get().getUser());
+        assertNull(found.get().getUser());
         assertEquals(PARKING_LEVEL_ENTITY, found.get().getParkingLevel());
     }
 

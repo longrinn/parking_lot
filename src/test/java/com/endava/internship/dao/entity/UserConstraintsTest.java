@@ -16,10 +16,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @DataJpaTest
 @ActiveProfiles("test")
 public class UserConstraintsTest {
-    @PersistenceContext
-    private EntityManager entityManager;
     private static RoleEntity ROLE_ADMIN;
     private static UserEntity USER_ENTITY;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @BeforeEach
     public void setUp() {

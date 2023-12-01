@@ -17,10 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ActiveProfiles("test")
 public class RoleConstraintsTest {
 
+    private static RoleEntity ROLE_ENTITY;
     @PersistenceContext
     private EntityManager entityManager;
-
-    private static RoleEntity ROLE_ENTITY;
 
     @BeforeEach
     public void set_up() {

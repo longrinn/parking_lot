@@ -1,5 +1,7 @@
 package com.endava.internship.dao.entity;
 
+import java.time.LocalTime;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -7,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,10 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @ActiveProfiles("test")
 public class WorkingTimeConstraintsTest {
 
+    private static ParkingLotEntity PARKING_LOT_ENTITY;
     @PersistenceContext
     private EntityManager entityManager;
-
-    private static ParkingLotEntity PARKING_LOT_ENTITY;
 
     @BeforeEach
     public void setUp() {

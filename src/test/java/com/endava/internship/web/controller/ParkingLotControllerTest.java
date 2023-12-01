@@ -1,7 +1,7 @@
 package com.endava.internship.web.controller;
 
-import static java.time.LocalTime.MIDNIGHT;
-import static java.time.LocalTime.NOON;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,22 +14,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static java.time.LocalTime.MIDNIGHT;
+import static java.time.LocalTime.NOON;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -70,8 +65,8 @@ public class ParkingLotControllerTest {
 
     @Test
     void getAllParkingLots_ShouldReturnListOfParkingLots() throws Exception {
-        ParkingLotDetailsDto firstParkingLotDto = new ParkingLotDetailsDto("ParkingLot1",NOON, MIDNIGHT, null, true,3,2);
-        ParkingLotDetailsDto secondParkingLotDto= new ParkingLotDetailsDto("ParkingLot2",NOON, MIDNIGHT, null, true,3,2);
+        ParkingLotDetailsDto firstParkingLotDto = new ParkingLotDetailsDto("ParkingLot1", NOON, MIDNIGHT, null, true, 3, 2);
+        ParkingLotDetailsDto secondParkingLotDto = new ParkingLotDetailsDto("ParkingLot2", NOON, MIDNIGHT, null, true, 3, 2);
 
         List<ParkingLotDetailsDto> response = Arrays.asList(firstParkingLotDto, secondParkingLotDto);
 

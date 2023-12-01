@@ -1,5 +1,9 @@
 package com.endava.internship.dao.entity;
 
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -7,9 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 public class EntityMappingTest {
 
-    @PersistenceContext
-    private EntityManager entityManager;
     private static ParkingLotEntity PARKING_LOT;
     private static ParkingLevelEntity PARKING_LEVEL;
     private static ParkingSpotEntity PARKING_SPOT;
@@ -28,6 +27,8 @@ public class EntityMappingTest {
     private static UserEntity USER_ENTITY;
     private static RoleEntity ROLE_ENTITY;
     private static CredentialsEntity CREDENTIALS_ENTITY;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @BeforeEach
     public void setup() {

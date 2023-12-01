@@ -1,5 +1,7 @@
 package com.endava.internship.infrastructure.mapper;
 
+import java.util.Set;
+
 import org.mapstruct.Mapper;
 
 import com.endava.internship.dao.entity.CredentialsEntity;
@@ -16,8 +18,6 @@ import com.endava.internship.infrastructure.domain.ParkingSpot;
 import com.endava.internship.infrastructure.domain.Role;
 import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.domain.WorkingTime;
-
-import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface DaoMapper {

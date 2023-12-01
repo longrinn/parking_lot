@@ -1,5 +1,10 @@
 package com.endava.internship.dao.entity;
 
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -11,10 +16,6 @@ import com.endava.internship.dao.repository.ParkingLotRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.ConstraintViolationException;
-import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -26,14 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ActiveProfiles("test")
 public class ParkingLotConstraintsTest {
 
+    private static final LocalTime START_TIME = LocalTime.of(8, 0);
+    private static final LocalTime END_TIME = LocalTime.of(20, 0);
     @PersistenceContext
     private EntityManager entityManager;
-
     @Autowired
     private ParkingLotRepository parkingLotRepository;
-
-    private static LocalTime START_TIME = LocalTime.of(8, 0);
-    private static LocalTime END_TIME = LocalTime.of(20, 0);
 
     @Test
     public void parkingLotIsValid_thenSuccess() {

@@ -9,6 +9,7 @@ Parking lot spring boot application with postgreSQL database in docker
     - [From Terminal](#from-terminal)
     - [From Maven plugins](#from-maven-plugins)
   - [Verifying the Setup](#verifying-the-setup)
+- [Endpoints Documentation](#endpoints-documentation) 
 
 ## Application Configuration
 To start working with application, consider to don one of the next options:
@@ -96,3 +97,9 @@ You may run each of these queries separately:
 1. SELECT * FROM Client;
 2. SELECT * FROM Credentials;
 3. SELECT * FROM Role;
+
+## Endpoints Documentation
+
+To view all the endpoints and all the JSON files required for the request, you can access the following link:
+- [Local Host Swagger](http://localhost:8080/swagger-ui/index.html)
+- [Server Swagger](http://parkinglot-be.app.mddinternship.com/swagger-ui/index.html)

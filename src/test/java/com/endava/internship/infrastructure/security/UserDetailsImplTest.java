@@ -1,14 +1,14 @@
 package com.endava.internship.infrastructure.security;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.endava.internship.dao.entity.CredentialsEntity;
 import com.endava.internship.dao.entity.RoleEntity;
 import com.endava.internship.dao.entity.UserEntity;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class UserDetailsImplTest {
 
@@ -22,7 +22,7 @@ class UserDetailsImplTest {
                 .password("Secret#51")
                 .build();
         RoleEntity role = new RoleEntity(2, "Admin");
-        UserEntity user = new UserEntity(51, credentials, "VeryNonSusUser", "051515151", role, null,null);
+        UserEntity user = new UserEntity(51, credentials, "VeryNonSusUser", "051515151", role, null, null);
         userDetails = new UserDetailsImpl(user);
     }
 

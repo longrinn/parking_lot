@@ -1,4 +1,4 @@
-package com.endava.internship.dao.entity.configuration;
+package com.endava.internship.dao.configuration;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -7,8 +7,6 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-
-import com.endava.internship.dao.configuration.HealthCheckConfiguration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

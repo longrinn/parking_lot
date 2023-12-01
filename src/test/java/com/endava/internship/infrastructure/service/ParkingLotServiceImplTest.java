@@ -64,30 +64,22 @@ class ParkingLotServiceImplTest {
 
     @InjectMocks
     ParkingLotServiceImpl parkingLotService;
-
     @Mock
     ParkingLotRepository parkingLotRepository;
-
     @Mock
     UserRepository userRepository;
-
     @Mock
     UserLinkToParkLotListener userLinkToParkLotListener;
-
-    @Mock
-    private DaoMapper daoMapper;
-
-    @Mock
-    private DtoMapper dtoMapper;
-
     @Mock
     ParkingLevelRepository parkingLevelRepository;
-
     @Mock
     WorkingTimeRepository workingTimeRepository;
-
     @Mock
     UserUnlinkFromParkingLotListener userUnlinkFromParkingLotListener;
+    @Mock
+    private DaoMapper daoMapper;
+    @Mock
+    private DtoMapper dtoMapper;
 
     @Test
     public void testCreateParkingLot_WhenParkingLotWithSameNameExists_ShouldThrow_EntityExistsException() {

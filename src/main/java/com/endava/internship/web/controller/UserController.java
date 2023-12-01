@@ -14,6 +14,8 @@ import com.endava.internship.web.request.AuthenticationRequest;
 import com.endava.internship.web.request.ChangeRoleRequest;
 import com.endava.internship.web.request.RegistrationRequest;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -27,6 +29,13 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(
+            responses = @ApiResponse(
+                    description = "Created",
+                    responseCode = "201"
+            ),
+            description = "This endpoint is used to create an account"
+    )
     @PostMapping("/registration")
     public ResponseEntity<AuthenticationResponse> registration(@RequestBody @Valid RegistrationRequest request) {
         return ResponseEntity.status(CREATED).body(userService.registration(request));
@@ -40,6 +49,6 @@ public class UserController {
     @PatchMapping("/update-role")
     public ResponseEntity<UserUpdatedRoleResponse> updateUserRole(@RequestBody @Valid ChangeRoleRequest changeRoleRequest) {
         final UserUpdatedRoleResponse updatedUser = userService.updateUserRole(changeRoleRequest);
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.status(OK).body(updatedUser);
     }
 }

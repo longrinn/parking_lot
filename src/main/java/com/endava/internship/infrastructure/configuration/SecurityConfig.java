@@ -24,6 +24,9 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    private final String[] swaggerWhiteList = {"/api-docs", "/api-docs.yaml", "/swagger", "/api-docs/swagger-config",
+            "/swagger-ui/*", "/swagger-initializer", "/swagger_ui_bundle"};
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -34,6 +37,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(request -> request.requestMatchers("/registration", "/authentication").permitAll())
                 .authorizeHttpRequests(request -> request.requestMatchers("/parking-lot", "/link-park-lot").hasAuthority("Admin"))
+                .authorizeHttpRequests(request -> request.requestMatchers(swaggerWhiteList).permitAll())
                 .authorizeHttpRequests(request -> request.anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
