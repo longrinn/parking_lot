@@ -1,10 +1,5 @@
 package com.endava.internship.dao.entity;
 
-import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +11,10 @@ import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.ParkingSpotRepository;
 
 import jakarta.validation.ConstraintViolationException;
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -99,7 +98,7 @@ public class ParkingLevelConstraintsTest {
 
         ParkingSpotEntity parkingSpot = new ParkingSpotEntity();
         parkingSpot.setName("A1");
-        parkingSpot.setState(true);
+        parkingSpot.setAvailable(true);
         parkingSpot.setType("Regular");
         parkingSpot.setParkingLevel(PARKING_LEVEL_ENTITY);
 

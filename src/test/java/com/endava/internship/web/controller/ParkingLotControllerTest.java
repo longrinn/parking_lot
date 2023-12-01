@@ -1,5 +1,8 @@
 package com.endava.internship.web.controller;
 
+import static java.time.LocalTime.MIDNIGHT;
+import static java.time.LocalTime.NOON;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,6 +13,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
+import com.endava.internship.web.dto.ParkingLotDetailsDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,5 +66,21 @@ public class ParkingLotControllerTest {
                 .andReturn();
 
         verify(parkingLotService).linkUserToParkingLot(any());
+    }
+
+    @Test
+    void getAllParkingLots_ShouldReturnListOfParkingLots() throws Exception {
+        ParkingLotDetailsDto firstParkingLotDto = new ParkingLotDetailsDto("ParkingLot1",NOON, MIDNIGHT, null, true,3,2);
+        ParkingLotDetailsDto secondParkingLotDto= new ParkingLotDetailsDto("ParkingLot2",NOON, MIDNIGHT, null, true,3,2);
+
+        List<ParkingLotDetailsDto> response = Arrays.asList(firstParkingLotDto, secondParkingLotDto);
+
+        when(parkingLotService.getAllParkingLots()).thenReturn(response);
+
+        mockMvc.perform(get("/parking-lot"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+
+        verify(parkingLotService).getAllParkingLots();
     }
 }

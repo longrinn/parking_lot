@@ -1,9 +1,5 @@
 package com.endava.internship.dao.entity;
 
-import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -11,6 +7,9 @@ import org.springframework.test.context.ActiveProfiles;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -111,7 +110,7 @@ public class EntityMappingTest {
 
         final ParkingSpotEntity retrievedSpot = retrievedLevel.getParkingSpots().iterator().next();
         assertEquals("A1", retrievedSpot.getName());
-        assertTrue(retrievedSpot.getState());
+        assertTrue(retrievedSpot.isAvailable());
         assertEquals("Lot 1", retrievedSpot.getParkingLevel().getParkingLot().getName());
     }
 
@@ -124,7 +123,7 @@ public class EntityMappingTest {
 
         final ParkingSpotEntity parkingSpot = new ParkingSpotEntity();
         parkingSpot.setName("A1");
-        parkingSpot.setState(true);
+        parkingSpot.setAvailable(true);
         parkingSpot.setType("Regular");
         parkingSpot.setUser(user);
         parkingSpot.setParkingLevel(PARKING_LEVEL);

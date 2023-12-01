@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
@@ -16,7 +17,7 @@ import lombok.Setter;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "parking_spot")
+@Table(name = "parking_spot", indexes = @Index(name = "unavailable_spot_idx", columnList = "state"))
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -34,8 +35,8 @@ public class ParkingSpotEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
-    private Boolean state;
+    @Column(name = "state", nullable = false)
+    private boolean available;
 
     @Column(nullable = false)
     private String type;
