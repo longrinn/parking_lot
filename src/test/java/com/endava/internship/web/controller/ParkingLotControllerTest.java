@@ -77,7 +77,7 @@ public class ParkingLotControllerTest {
 
         when(parkingLotService.getAllParkingLots()).thenReturn(response);
 
-        mockMvc.perform(get("/parking-lot"))
+        mockMvc.perform(get("/parking-lots"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)));
 

@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 import com.endava.internship.dao.entity.CredentialsEntity;
 import com.endava.internship.dao.entity.RoleEntity;
 import com.endava.internship.dao.entity.UserEntity;
-import com.endava.internship.dao.repository.CredentialRepository;
+import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.RoleRepository;
 import com.endava.internship.dao.repository.UserRepository;
@@ -22,6 +22,7 @@ import com.endava.internship.infrastructure.domain.Credentials;
 import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.listeners.UserLinkToParkLotListener;
 import com.endava.internship.infrastructure.listeners.UserRoleChangeEmailListener;
+import com.endava.internship.infrastructure.listeners.UserUnlinkFromParkingLotListener;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.infrastructure.security.JwtUtils;
@@ -52,13 +53,13 @@ public class UserServiceImpl implements UserService {
     private final DtoMapper dtoMapper;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private final CredentialRepository credentialRepository;
     private final ParkingLotRepository parkingLotRepository;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserRoleChangeEmailListener userRoleChangeEmailListener;
     private final UserLinkToParkLotListener userLinkToParkLotListener;
 
+    private final UserUnlinkFromParkingLotListener userUnlinkFromParkLotListener;
 
     @Override
     @Transactional

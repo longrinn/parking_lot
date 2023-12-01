@@ -18,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.endava.internship.dao.entity.CredentialsEntity;
 import com.endava.internship.dao.entity.RoleEntity;
 import com.endava.internship.dao.entity.UserEntity;
-import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.RoleRepository;
 import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.infrastructure.domain.Credentials;
@@ -36,6 +35,7 @@ import com.endava.internship.web.request.RegistrationRequest;
 
 import jakarta.persistence.EntityNotFoundException;
 
+import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -54,9 +54,6 @@ class UserServiceTest {
 
     @Mock
     private RoleRepository roleRepository;
-
-    @Mock
-    private ParkingLotRepository parkingLotRepository;
 
     @Mock
     private DaoMapper daoMapper;
@@ -78,6 +75,8 @@ class UserServiceTest {
 
     @InjectMocks
     private UserServiceImpl userService;
+
+
 
     @Test
     void registeredUserShouldBeAdded() {
@@ -112,7 +111,7 @@ class UserServiceTest {
     void register_WhenRoleIsNotPresent_ShouldThrowEntityNotFoundException() {
         RegistrationRequest request = new RegistrationRequest("UserName", "user@mail.com", "User1!", "067860680");
 
-        when(roleRepository.findRoleEntityByName("User")).thenReturn(Optional.empty());
+        when(roleRepository.findRoleEntityByName("User")).thenReturn(empty());
 
         assertThrows(EntityNotFoundException.class, () -> userService.registration(request));
     }
@@ -154,7 +153,7 @@ class UserServiceTest {
         String email = "user@mail.com";
         AuthenticationRequest request = new AuthenticationRequest(email, "User1!");
 
-        when(userRepository.findByCredential_Email(email)).thenReturn(Optional.empty());
+        when(userRepository.findByCredential_Email(email)).thenReturn(empty());
 
         assertThrows(EntityNotFoundException.class, () -> userService.authentication(request));
     }
@@ -199,9 +198,8 @@ class UserServiceTest {
     @Test
     void updateUserRole_WhenUserNotFound_ShouldThrowException() {
         ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("email@.mail", "Role");
-        UserEntity user = new UserEntity(1, null, "John", "+37368521164", null, null, null);
 
-        when(userRepository.findByCredential_Email(changeRoleRequest.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.findByCredential_Email(changeRoleRequest.getEmail())).thenReturn(empty());
 
         assertThrows(EntityNotFoundException.class, () -> userService.updateUserRole(changeRoleRequest));
     }
@@ -210,11 +208,9 @@ class UserServiceTest {
     void updateUserRole_WhenRoleNotFound_ShouldThrowException() {
         final ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("email@.mail", "Role");
         UserEntity user = new UserEntity(1, null, "John", "+37368521164", null, null, null);
-        RoleEntity newRole1 = new RoleEntity(1, "Admin");
-        RoleEntity newRole2 = new RoleEntity(2, "User");
 
         when(userRepository.findByCredential_Email(changeRoleRequest.getEmail())).thenReturn(Optional.of(user));
-        when(roleRepository.findRoleEntityByName(changeRoleRequest.getNewRole())).thenReturn(Optional.empty());
+        when(roleRepository.findRoleEntityByName(changeRoleRequest.getNewRole())).thenReturn(empty());
 
         assertThrows(EntityNotFoundException.class, () -> userService.updateUserRole(changeRoleRequest));
     }
@@ -243,5 +239,4 @@ class UserServiceTest {
         verify(roleRepository).findRoleEntityByName("Admin");
         verify(userRoleChangeEmailListener).handleUserRoleChangeEvent("test@example.com");
     }
-
 }

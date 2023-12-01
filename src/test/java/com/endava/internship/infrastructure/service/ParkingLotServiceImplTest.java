@@ -1,7 +1,10 @@
 package com.endava.internship.infrastructure.service;
 
-import static java.time.LocalTime.MIDNIGHT;
-import static java.time.LocalTime.NOON;
+import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,28 +26,36 @@ import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.dao.repository.WorkingTimeRepository;
 import com.endava.internship.infrastructure.domain.ParkingLevel;
 import com.endava.internship.infrastructure.domain.ParkingLot;
+import com.endava.internship.infrastructure.domain.Role;
+import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.domain.WorkingTime;
 import com.endava.internship.infrastructure.exception.EntityAlreadyLinkedException;
+import com.endava.internship.infrastructure.exception.EntityAreNotLinkedException;
 import com.endava.internship.infrastructure.listeners.UserLinkToParkLotListener;
+import com.endava.internship.infrastructure.listeners.UserUnlinkFromParkingLotListener;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
+import com.endava.internship.web.dto.UnlinkUserDto;
+import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
+import static java.time.LocalTime.MIDNIGHT;
+import static java.time.LocalTime.NOON;
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,6 +70,7 @@ class ParkingLotServiceImplTest {
 
     @Mock
     UserRepository userRepository;
+
     @Mock
     UserLinkToParkLotListener userLinkToParkLotListener;
 
@@ -74,6 +86,8 @@ class ParkingLotServiceImplTest {
     @Mock
     WorkingTimeRepository workingTimeRepository;
 
+    @Mock
+    UserUnlinkFromParkingLotListener userUnlinkFromParkingLotListener;
 
     @Test
     public void testCreateParkingLot_WhenParkingLotWithSameNameExists_ShouldThrow_EntityExistsException() {
@@ -158,6 +172,90 @@ class ParkingLotServiceImplTest {
         userEntity.getParkingLots().add(parkingLotEntity);
 
         assertThrows(EntityAlreadyLinkedException.class, () -> parkingLotService.linkUserToParkingLot(request));
+    }
+
+    @Test
+    void unlinkNonExistentUserFromParkingLot_throwsEntityNotFoundException() {
+        UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
+
+        when(userRepository.findByCredential_Email(request.getUserEmail())).thenReturn(empty());
+
+        assertThrows(EntityNotFoundException.class, () -> parkingLotService.unlinkUserFromParkingLot(request));
+    }
+
+    @Test
+    void unlinkUserFromNonExistentParkingLot_ShouldThrowsEntityLotNotFoundException() {
+        final UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
+        final RoleEntity roleEntity = new RoleEntity(1, "User");
+        final UserEntity userEntity = new UserEntity(1, null, "John", "868521164", roleEntity, null, null);
+
+        when(userRepository.findByCredential_Email(request.getUserEmail())).thenReturn(Optional.of(userEntity));
+        when(parkingLotRepository.findByName(request.getParkingLotName())).thenReturn(empty());
+
+        assertThrows(EntityNotFoundException.class, () -> parkingLotService.unlinkUserFromParkingLot(request));
+    }
+
+    @Test
+    void unlinkUserFromParkingLotSuccessful() {
+        final UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
+
+        final RoleEntity roleEntity = new RoleEntity(1, "User");
+
+        final CredentialsEntity credentialsEntity = CredentialsEntity.builder()
+                .email("user@example.com")
+                .build();
+
+        final UserEntity userEntity = UserEntity.builder()
+                .id(1)
+                .credential(credentialsEntity)
+                .name("John")
+                .role(roleEntity)
+                .parkingLots(new HashSet<>())
+                .build();
+
+        final Role role = new Role("User");
+        final User user = new User(1, "John", "868521164", role, null);
+
+        final ParkingLotEntity parkingLotEntity = ParkingLotEntity.builder()
+                .id(1)
+                .name("ParkingLotName")
+                .address("address")
+                .users(new HashSet<>())
+                .build();
+        parkingLotEntity.getUsers().add(userEntity);
+
+        final Set<ParkingLotEntity> parkingLotEntities = new HashSet<>();
+        parkingLotEntities.add(parkingLotEntity);
+        userEntity.setParkingLots(parkingLotEntities);
+
+        when(userRepository.findByCredential_Email(request.getUserEmail())).thenReturn(Optional.of(userEntity));
+        when(parkingLotRepository.findByName(request.getParkingLotName())).thenReturn(Optional.of(parkingLotEntity));
+        doNothing().when(userUnlinkFromParkingLotListener).handleUserUnlinkFromParkLotEvent(any(UserToParkingLotDto.class));
+        when(daoMapper.map(userEntity)).thenReturn(user);
+
+        UnlinkUserDto result = parkingLotService.unlinkUserFromParkingLot(request);
+        UnlinkUserDto unlinkUserDto = new UnlinkUserDto("John has been unlinked");
+
+        verify(userRepository).findByCredential_Email(request.getUserEmail());
+        verify(parkingLotRepository).findByName(request.getParkingLotName());
+
+        assertFalse(userEntity.getParkingLots().contains(parkingLotEntity));
+        assertNotNull(result);
+        assertEquals(unlinkUserDto.getMessage(), result.getMessage());
+    }
+
+    @Test
+    void unlinkUserFromParkingLotNotLinked_ShouldThrowEntityAreNotLinkedException() {
+        final UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
+        final RoleEntity roleEntity = new RoleEntity(1, "User");
+        final CredentialsEntity credentialsEntity = new CredentialsEntity(1, null, "user@example.com", "Password");
+        final UserEntity userEntity = new UserEntity(1, credentialsEntity, "John", "868521164", roleEntity, null, new HashSet<>());
+        final ParkingLotEntity parkingLotEntity = new ParkingLotEntity(1, "ParkingLotName", "address", LocalTime.of(8, 0), LocalTime.of(20, 0), false, null);
+
+        when(userRepository.findByCredential_Email(request.getUserEmail())).thenReturn(Optional.of(userEntity));
+        when(parkingLotRepository.findByName(request.getParkingLotName())).thenReturn(Optional.of(parkingLotEntity));
+
+        assertThrows(EntityAreNotLinkedException.class, () -> parkingLotService.unlinkUserFromParkingLot(request));
     }
 
     @Test
