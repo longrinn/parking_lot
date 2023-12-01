@@ -12,7 +12,6 @@ sonarqube-check:
     - mvn verify sonar:sonar -Dmaven.test.failure.ignore=true
   allow_failure: true
   only:
-    - merge_requests
     - main
 
 build-backend:
@@ -24,5 +23,4 @@ build-backend:
     - echo "{\"auths\":{\"$NEXUS_URL\":{\"auth\":\"$(echo -n $NEXUS_USER:$NEXUS_PASS | base64)\"}}}"> /kaniko/.docker/config.json
     - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --destination "$NEXUS_PL:${CI_COMMIT_REF_SLUG}"
   only:
-    - merge_requests
     - main
