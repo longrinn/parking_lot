@@ -1,6 +1,6 @@
 stages:
   # - sonarqube-check
-  - db_migration
+  # - db_migration
   - build_image
 
 # sonarqube-check:
@@ -15,14 +15,14 @@ stages:
 #   only:
 #     - main
 
-db_migration:
-  stage: db_migration
-  image: dmoscalu/pgjdk17:latest
-  before_script:
-    - sudo chmod +x mvnw 
-    # - main
-  script:
-    - pg_ctl start -D /var/lib/postgresql/data && ./mvnw flyway:clean && ./mvnw flyway:migrate
+# db_migration:
+#   stage: db_migration
+#   image: dmoscalu/pgjdk17:latest
+#   before_script:
+#     - sudo chmod +x mvnw 
+#     # - main
+#   script:
+#     - pg_ctl start -D /var/lib/postgresql/data && ./mvnw flyway:clean && ./mvnw flyway:migrate
 
 build-backend:
   stage: build_image
