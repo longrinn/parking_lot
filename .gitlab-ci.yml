@@ -34,3 +34,25 @@ build-backend:
     # - chmod +x mvnw && ./mvnw flyway:clean && ./mvnw flyway:migrate
   only:
     - main
+
+
+tagging:
+  stage: tagging
+  image: rdcib/git:latest
+  before_script:
+    - git remote set-url origin "https://$REPO_TOKEN_NAME:$REPO_ACCESS_TOKEN@gitlab.tool.mddinternship.com/devops/argocd.git"
+    - git config --global user.email "vladislav.pronoza@endava.com"
+    - git config --global user.name "vpronoza"
+    # Reset to remote main branch
+    - git clone https://$REPO_TOKEN_NAME:$REPO_ACCESS_TOKEN@gitlab.tool.mddinternship.com/devops/argocd.git
+    - cd argocd/TraningLicenseSharing/Backend
+  script:
+    #- VERSION=$(cat ${CI_PROJECT_DIR}/project-version | grep -o -E '[0-9]+[.][0-9]+[.][0-9]')
+    - yq -i 'select(di == 3).spec.template.spec.containers[0].image = "'$NEXUS_PL':'$CI_COMMIT_SHA'"' ArgoCD.yaml
+    - yq -i 'select(di == 4).spec.template.spec.containers[0].image = "'$NEXUS_PL':'$CI_COMMIT_SHA'"' ArgoCD.yaml
+    - git add ArgoCD.yaml
+    - git commit -m "Update TagImage to 'CI_COMMIT_SHA'"
+    - git push -o ci.skip origin HEAD:main
+  needs: [build-backend]
+  only:
+    - main
