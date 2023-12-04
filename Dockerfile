@@ -6,7 +6,7 @@ COPY . .
 
 RUN chmod +x mvnw
 
-RUN  ./mvnw clean package && java -jar target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war && ./mvnw flyway:clean && ./mvnw flyway:migrate
+CMD  ./mvnw clean package && java -jar target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war 
 
 #FROM openjdk:17-jdk-alpine
 
