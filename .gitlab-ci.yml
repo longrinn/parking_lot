@@ -46,7 +46,7 @@ tagging:
     - git config --global user.name "vpronoza"
     # Reset to remote main branch
     - git clone https://$REPO_TOKEN_NAME:$REPO_ACCESS_TOKEN@gitlab.tool.mddinternship.com/devops/argocd.git
-    - cd argocd/ParkingLot/Backend/
+    - cd argocd/Parkinglot/Backend/
   script:
     #- VERSION=$(cat ${CI_PROJECT_DIR}/project-version | grep -o -E '[0-9]+[.][0-9]+[.][0-9]')
     - yq -i 'select(di == 3).spec.template.spec.containers[0].image = "'$NEXUS_PL':'$CI_COMMIT_SHA'"' ArgoCD.yaml
