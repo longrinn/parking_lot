@@ -1,26 +1,25 @@
 stages:
-  # - sonarqube-check
+  - sonarqube-check
   # - db_migration
   - build_image
 
-# sonarqube-check:
-#   stage: sonarqube-check
-#   image: maven:3-eclipse-temurin-17
-#   variables:
-#     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  
-#     GIT_DEPTH: "0" 
-#   script:
-#     - mvn verify sonar:sonar -Dmaven.test.failure.ignore=true
-#   allow_failure: true
-#   only:
-#     - main
+sonarqube-check:
+  stage: sonarqube-check
+  image: maven:3-eclipse-temurin-17
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  
+    GIT_DEPTH: "0" 
+  script:
+    - mvn verify sonar:sonar -Dmaven.test.failure.ignore=true
+  allow_failure: true
+  only:
+    - main
 
 # db_migration:
 #   stage: db_migration
 #   image: dmoscalu/pgjdk17:latest
 #   before_script:
 #     - sudo chmod +x mvnw 
-#     # - main
 #   script:
 #     - pg_ctl start -D /var/lib/postgresql/data && ./mvnw flyway:clean && ./mvnw flyway:migrate
 
@@ -32,5 +31,6 @@ build-backend:
   script:
     - echo "{\"auths\":{\"$NEXUS_URL\":{\"auth\":\"$(echo -n $NEXUS_USER:$NEXUS_PASS | base64)\"}}}"> /kaniko/.docker/config.json
     - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --destination "$NEXUS_PL:${CI_COMMIT_REF_SLUG}"
+    - ./mvnw flyway:clean && ./mvnw flyway:migrate
   only:
     - main
