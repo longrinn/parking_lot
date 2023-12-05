@@ -17,5 +17,5 @@ public class ChangeRoleRequest {
 
     @NotBlank(message = "Role can not be blank")
     @Schema(example = "Admin")
-    private final String newRole;
+    private final String role;
 }

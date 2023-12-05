@@ -14,7 +14,7 @@ public class ParkingLotDetailsDto {
     private final LocalTime startTime;
     private final LocalTime endTime;
     private final Set<WorkingTimeDto> workingTimesDto;
-    private final boolean temporarilyClosed;
-    private final long totalNumberSpots;
+    private final boolean state;
+    private final long totalSpots;
     private final long unavailableParkingSpots;
 }

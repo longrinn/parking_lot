@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserUpdatedRoleResponse updateUserRole(ChangeRoleRequest changeRoleRequest) {
 
-        final String standardisedNewRole = StringUtils.capitalize(changeRoleRequest.getNewRole().toLowerCase().trim());
+        final String standardisedNewRole = StringUtils.capitalize(changeRoleRequest.getRole().toLowerCase().trim());
         final String userEmail = changeRoleRequest.getEmail();
 
         final UserEntity userEntity = userRepository.findByCredential_Email(userEmail)

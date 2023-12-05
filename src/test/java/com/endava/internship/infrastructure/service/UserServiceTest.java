@@ -200,7 +200,7 @@ class UserServiceTest {
         UserEntity user = new UserEntity(1, null, "John", "+37368521164", null, null, null);
 
         when(userRepository.findByCredential_Email(changeRoleRequest.getEmail())).thenReturn(Optional.of(user));
-        when(roleRepository.findRoleEntityByName(changeRoleRequest.getNewRole())).thenReturn(empty());
+        when(roleRepository.findRoleEntityByName(changeRoleRequest.getRole())).thenReturn(empty());
 
         assertThrows(EntityNotFoundException.class, () -> userService.updateUserRole(changeRoleRequest));
     }
