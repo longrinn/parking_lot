@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +36,7 @@ import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.CreateParkingLotResponse;
 import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
-import com.endava.internship.web.dto.UnlinkUserDto;
+import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
@@ -63,6 +65,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     private final DaoMapper daoMapper;
     private final DtoMapper dtoMapper;
     private final UserUnlinkFromParkingLotListener userUnlinkFromParkLotListener;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     @Transactional
@@ -221,7 +224,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Override
     @Transactional
-    public UnlinkUserDto unlinkUserFromParkingLot(UpdateParkLotLinkRequest updateParkLotLinkRequest) {
+    public ResponseDto unlinkUserFromParkingLot(UpdateParkLotLinkRequest updateParkLotLinkRequest) {
 
         final String parkingLotName = updateParkLotLinkRequest.getParkingLotName();
         final String userEmail = updateParkLotLinkRequest.getUserEmail();
@@ -250,6 +253,43 @@ public class ParkingLotServiceImpl implements ParkingLotService {
             userUnlinkFromParkLotListener.handleUserUnlinkFromParkLotEvent(emailDetails);
         }
 
-        return new UnlinkUserDto(userDomain.getName() + " has been unlinked");
+        return new ResponseDto(userDomain.getName() + " has been unlinked");
+    }
+
+    @Override
+    @Transactional
+    public ResponseDto deleteParkingLot(Integer parkingLotId) {
+        final ParkingLotEntity parkingLotEntity = parkingLotRepository.findById(parkingLotId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(PARKING_LOT_NAME_NOT_FOUND_ERROR_MESSAGE, parkingLotId)));
+
+        List<ParkingLevelEntity> levels = parkingLevelRepository.getByParkingLotId(parkingLotEntity.getId());
+
+        for (ParkingLevelEntity level : levels) {
+            Optional<List<ParkingSpotEntity>> spotsOpt = parkingSpotRepository.findByParkingLevelId(level.getId());
+            if (spotsOpt.isPresent()) {
+                List<ParkingSpotEntity> spots = spotsOpt.get();
+                List<Integer> spotIds = spots.stream()
+                        .map(ParkingSpotEntity::getId)
+                        .toList();
+
+                if (!spotIds.isEmpty()) {
+                    parkingSpotRepository.deleteRelationUserSpotBySpotIds(spotIds);
+                }
+                parkingSpotRepository.deleteAll(spots);
+            }
+            parkingLevelRepository.delete(level);
+        }
+
+        Optional<Set<WorkingTimeEntity>> workingTimesOpt = workingTimeRepository.findByParkingLot_Id(parkingLotEntity.getId());
+        if (workingTimesOpt.isPresent()) {
+            Set<WorkingTimeEntity> workingTimes = workingTimesOpt.get();
+            workingTimeRepository.deleteAll(workingTimes);
+        }
+
+        parkingLotRepository.deleteRelationUserSpotBySpotIds(parkingLotId);
+        parkingLotRepository.delete(parkingLotEntity);
+
+        return new ResponseDto("The parking lot with ID: " + parkingLotId + " and all its related entities has been deleted");
     }
 }

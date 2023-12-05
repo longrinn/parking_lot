@@ -11,9 +11,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
+import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -41,6 +44,9 @@ public class ParkingLotControllerTest {
 
     @MockBean
     private ParkingLotService parkingLotService;
+
+    @MockBean
+    private ParkingLotRepository parkingLotRepository;
 
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -78,4 +84,19 @@ public class ParkingLotControllerTest {
 
         verify(parkingLotService).getAllParkingLots();
     }
+
+    @Test
+    void deleteExistingParkingLot_isSuccess() throws Exception {
+        Integer parkingLotId = 1;
+
+        ResponseDto expected = new ResponseDto("The parking lot with ID: " + parkingLotId + " and all its related entities has been deleted");
+        when(parkingLotService.deleteParkingLot(parkingLotId)).thenReturn(expected);
+
+        mockMvc.perform(delete("/parking-lot/" + parkingLotId))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(expected)));
+
+        verify(parkingLotService).deleteParkingLot(parkingLotId);
+    }
+
 }

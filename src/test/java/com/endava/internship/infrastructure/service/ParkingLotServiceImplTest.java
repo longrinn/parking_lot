@@ -1,6 +1,7 @@
 package com.endava.internship.infrastructure.service;
 
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import com.endava.internship.dao.entity.UserEntity;
 import com.endava.internship.dao.entity.WorkingTimeEntity;
 import com.endava.internship.dao.repository.ParkingLevelRepository;
 import com.endava.internship.dao.repository.ParkingLotRepository;
+import com.endava.internship.dao.repository.ParkingSpotRepository;
 import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.dao.repository.WorkingTimeRepository;
 import com.endava.internship.infrastructure.domain.ParkingLevel;
@@ -37,7 +39,7 @@ import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
-import com.endava.internship.web.dto.UnlinkUserDto;
+import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
@@ -48,14 +50,17 @@ import jakarta.persistence.EntityNotFoundException;
 
 import static java.time.LocalTime.MIDNIGHT;
 import static java.time.LocalTime.NOON;
+import static java.util.Collections.emptyList;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -72,6 +77,10 @@ class ParkingLotServiceImplTest {
     UserLinkToParkLotListener userLinkToParkLotListener;
     @Mock
     ParkingLevelRepository parkingLevelRepository;
+
+    @Mock
+    ParkingSpotRepository parkingSpotRepository;
+
     @Mock
     WorkingTimeRepository workingTimeRepository;
     @Mock
@@ -225,15 +234,15 @@ class ParkingLotServiceImplTest {
         doNothing().when(userUnlinkFromParkingLotListener).handleUserUnlinkFromParkLotEvent(any(UserToParkingLotDto.class));
         when(daoMapper.map(userEntity)).thenReturn(user);
 
-        UnlinkUserDto result = parkingLotService.unlinkUserFromParkingLot(request);
-        UnlinkUserDto unlinkUserDto = new UnlinkUserDto("John has been unlinked");
+        ResponseDto result = parkingLotService.unlinkUserFromParkingLot(request);
+        ResponseDto responseDto = new ResponseDto("John has been unlinked");
 
         verify(userRepository).findByCredential_Email(request.getUserEmail());
         verify(parkingLotRepository).findByName(request.getParkingLotName());
 
         assertFalse(userEntity.getParkingLots().contains(parkingLotEntity));
         assertNotNull(result);
-        assertEquals(unlinkUserDto.getMessage(), result.getMessage());
+        assertEquals(responseDto.getMessage(), result.getMessage());
     }
 
     @Test
@@ -316,5 +325,54 @@ class ParkingLotServiceImplTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).usingRecursiveComparison().isEqualTo(parkingLotDetailsDto);
+    }
+
+    @Test
+    void deleteParkingLotWithAllRelatedEntities_isSuccess() {
+        Integer parkingLotId = 1;
+        ParkingLotEntity parkingLotEntity = new ParkingLotEntity();
+        List<ParkingLevelEntity> levels = Arrays.asList(new ParkingLevelEntity());
+        List<ParkingSpotEntity> spots = Arrays.asList(new ParkingSpotEntity());
+        Set<WorkingTimeEntity> workingTimes = new HashSet<>(Arrays.asList(new WorkingTimeEntity()));
+
+        when(parkingLotRepository.findById(parkingLotId)).thenReturn(Optional.of(parkingLotEntity));
+        when(parkingLevelRepository.getByParkingLotId(parkingLotEntity.getId())).thenReturn(levels);
+        when(parkingSpotRepository.findByParkingLevelId(levels.get(0).getId())).thenReturn(Optional.of(spots));
+        when(workingTimeRepository.findByParkingLot_Id(parkingLotEntity.getId())).thenReturn(Optional.of(workingTimes));
+
+        ResponseDto response = parkingLotService.deleteParkingLot(parkingLotId);
+
+        assertEquals("The parking lot with ID: " + parkingLotId + " and all its related entities has been deleted", response.getMessage());
+        assertTrue(parkingLotRepository.findById(parkingLotEntity.getId()).isEmpty());
+        assertTrue(levels.stream().allMatch(level -> parkingLevelRepository.findById(level.getId()).isEmpty()));
+        assertTrue(spots.stream().allMatch(spot -> parkingSpotRepository.findById(spot.getId()).isEmpty()));
+        assertTrue(workingTimes.stream().allMatch(time -> workingTimeRepository.findById(time.getId()).isEmpty()));
+    }
+
+    @Test
+    void deleteParkingLotWithNoRelatedEntities_isSuccess() {
+        Integer parkingLotId = 2;
+        ParkingLotEntity parkingLotEntity = new ParkingLotEntity();
+
+        when(parkingLotRepository.findById(parkingLotId)).thenReturn(Optional.of(parkingLotEntity));
+        when(parkingLevelRepository.getByParkingLotId(parkingLotEntity.getId())).thenReturn(emptyList());
+        when(workingTimeRepository.findByParkingLot_Id(parkingLotEntity.getId())).thenReturn(Optional.empty());
+
+        ResponseDto response = parkingLotService.deleteParkingLot(parkingLotId);
+
+        assertEquals("The parking lot with ID: " + parkingLotId + " and all its related entities has been deleted", response.getMessage());
+        verify(parkingLotRepository).delete(parkingLotEntity);
+        verify(parkingLevelRepository, never()).deleteAll(any());
+        verify(parkingSpotRepository, never()).deleteAll(any());
+        verify(workingTimeRepository, never()).deleteAll(any());
+    }
+
+    @Test
+    void deleteParkingLotNotFound_throwsEntityNotFoundException() {
+        Integer parkingLotId = 3;
+        when(parkingLotRepository.findById(parkingLotId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () ->
+                parkingLotService.deleteParkingLot(parkingLotId));
     }
 }

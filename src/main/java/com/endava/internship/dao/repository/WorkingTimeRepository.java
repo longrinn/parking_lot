@@ -10,4 +10,5 @@ import com.endava.internship.dao.entity.WorkingTimeEntity;
 public interface WorkingTimeRepository extends JpaRepository<WorkingTimeEntity, Integer> {
 
     Optional<Set<WorkingTimeEntity>> findByParkingLot_Id(Integer id);
+
 }

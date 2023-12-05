@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UnlinkUserDto {
+public class ResponseDto {
 
     String message;
 }
