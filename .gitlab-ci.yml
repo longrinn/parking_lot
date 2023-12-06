@@ -31,6 +31,7 @@ build-backend:
     entrypoint: [""]
   script:
     - echo "{\"auths\":{\"$NEXUS_URL\":{\"auth\":\"$(echo -n $NEXUS_USER:$NEXUS_PASS | base64)\"}}}"> /kaniko/.docker/config.json
+    - echo "$CI_COMMIT_REF_SLUG"
     - /kaniko/executor --context "${CI_PROJECT_DIR}" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --destination "$NEXUS_PL:${CI_COMMIT_REF_SLUG}"
     # - chmod +x mvnw && ./mvnw flyway:clean && ./mvnw flyway:migrate
   only:
