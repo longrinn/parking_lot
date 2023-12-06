@@ -28,6 +28,7 @@ import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.dao.repository.WorkingTimeRepository;
 import com.endava.internship.infrastructure.domain.ParkingLevel;
 import com.endava.internship.infrastructure.domain.ParkingLot;
+import com.endava.internship.infrastructure.domain.ParkingSpot;
 import com.endava.internship.infrastructure.domain.Role;
 import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.domain.WorkingTime;
@@ -59,8 +60,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -91,33 +94,148 @@ class ParkingLotServiceImplTest {
     private DtoMapper dtoMapper;
 
     @Test
-    public void testCreateParkingLot_WhenParkingLotWithSameNameExists_ShouldThrow_EntityExistsException() {
-        WorkingTimeDto workingTime1 = new WorkingTimeDto("Monday");
-        WorkingTimeDto workingTime2 = new WorkingTimeDto("Tuesday");
-        Set<WorkingTimeDto> workingTimesDto = new HashSet<>();
-        workingTimesDto.add(workingTime1);
-        workingTimesDto.add(workingTime2);
+    public void testCreateParkingLot_WhenParkingLotWithSameNameExists_ShouldThrowEntityExistsException() {
+        final String nameOfParkingLot = "Parking Lot From Test";
+        final String addressOfParkingLot = "Random Street";
+        final String monday = "Monday";
 
-        ParkingLevelDto parkingLevel1 = new ParkingLevelDto(1, 47);
-        ParkingLevelDto parkingLevel2 = new ParkingLevelDto(2, 36);
-        Set<ParkingLevelDto> parkingLevelsDto = new HashSet<>();
-        parkingLevelsDto.add(parkingLevel1);
-        parkingLevelsDto.add(parkingLevel2);
+        final WorkingTimeDto workingTimeDto = new WorkingTimeDto(monday);
+        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1);
 
-        CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
-                "Parking Lot From Test",
-                "Random Street",
+        final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
+                nameOfParkingLot,
+                addressOfParkingLot,
                 LocalTime.of(6, 0, 0),
                 LocalTime.of(21, 0, 0),
-                false,
-                workingTimesDto,
-                parkingLevelsDto);
+                true,
+                Set.of(workingTimeDto),
+                Set.of(parkingLevelDto));
 
         when(parkingLotRepository.existsByName(parkingLotRequest.getName())).thenReturn(true);
 
         assertThrows(EntityExistsException.class, () -> parkingLotService.createParkingLot(parkingLotRequest));
+
+        verify(parkingLotRepository).existsByName(parkingLotRequest.getName());
     }
 
+    @Test
+    public void testCreateParkingLot_WhenParkingLotWithSameAddressExists_ShouldThrowEntityExistsException() {
+        final String nameOfParkingLot = "Parking Lot From Test";
+        final String addressOfParkingLot = "Random Street";
+        final String monday = "Monday";
+
+        final WorkingTimeDto workingTimeDto = new WorkingTimeDto(monday);
+        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1);
+
+        final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
+                nameOfParkingLot,
+                addressOfParkingLot,
+                LocalTime.of(6, 0, 0),
+                LocalTime.of(21, 0, 0),
+                true,
+                Set.of(workingTimeDto),
+                Set.of(parkingLevelDto));
+
+        when(parkingLotRepository.existsByAddress(parkingLotRequest.getAddress())).thenReturn(true);
+
+        assertThrows(EntityExistsException.class, () -> parkingLotService.createParkingLot(parkingLotRequest));
+
+        verify(parkingLotRepository).existsByAddress(parkingLotRequest.getAddress());
+    }
+
+    @Test
+    public void testCreateParkingLot_ShouldCreateParkingLotWithSuccess() {
+        final String nameOfParkingLot = "Parking Lot From Test";
+        final String addressOfParkingLot = "Random Street";
+        final String monday = "Monday";
+
+        final WorkingTimeDto workingTimeDto = new WorkingTimeDto(monday);
+        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1);
+
+        final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
+                nameOfParkingLot,
+                addressOfParkingLot,
+                LocalTime.of(6, 0, 0),
+                LocalTime.of(21, 0, 0),
+                true,
+                Set.of(workingTimeDto),
+                Set.of(parkingLevelDto));
+
+        final ParkingLevel parkingLevel = ParkingLevel.builder()
+                .id(1)
+                .floor(1)
+                .totalSpots(1)
+                .build();
+
+        final ParkingLot parkingLot = ParkingLot.builder()
+                .id(1)
+                .name(nameOfParkingLot)
+                .address(addressOfParkingLot)
+                .startTime(LocalTime.of(6, 0, 0))
+                .endTime(LocalTime.of(21, 0, 0))
+                .state(true)
+                .build();
+
+        final ParkingLotEntity parkingLotEntity = new ParkingLotEntity(
+                1,
+                nameOfParkingLot,
+                addressOfParkingLot,
+                LocalTime.of(6, 0, 0),
+                LocalTime.of(21, 0, 0),
+                true,
+                null);
+
+        final ParkingSpotEntity parkingSpotEntity = new ParkingSpotEntity(1,
+                null,
+                "A-001",
+                false,
+                "regular",
+                null);
+
+        final ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
+                .id(1)
+                .floor(1)
+                .totalSpots(1)
+                .parkingSpots(Set.of(parkingSpotEntity))
+                .build();
+
+        final WorkingTimeEntity workingTimeEntity = new WorkingTimeEntity();
+        workingTimeEntity.setId(1);
+        workingTimeEntity.setNameDay(monday);
+
+        List<ParkingLevelEntity> parkingLevelEntities = List.of(parkingLevelEntity);
+
+        when(parkingLotRepository.existsByName(parkingLotRequest.getName())).thenReturn(false);
+        when(daoMapper.map(any(ParkingLot.class))).thenReturn(parkingLotEntity);
+        when(parkingLotRepository.save(parkingLotEntity)).thenReturn(parkingLotEntity);
+        when(daoMapper.map(any(ParkingLotEntity.class))).thenReturn(parkingLot);
+        when(daoMapper.map(any(ParkingLevel.class))).thenReturn(parkingLevelEntity);
+        when(parkingLevelRepository.save(parkingLevelEntity)).thenReturn(parkingLevelEntity);
+        when(parkingLevelRepository.getByParkingLotId(anyInt())).thenReturn(parkingLevelEntities);
+        when(daoMapper.map(any(ParkingLevelEntity.class))).thenReturn(parkingLevel);
+        when(daoMapper.map(any(ParkingSpot.class))).thenReturn(parkingSpotEntity);
+        when(parkingSpotRepository.save(parkingSpotEntity)).thenReturn(parkingSpotEntity);
+        when(daoMapper.map(any(WorkingTime.class))).thenReturn(workingTimeEntity);
+        when(workingTimeRepository.save(workingTimeEntity)).thenReturn(workingTimeEntity);
+
+        ResponseDto response = parkingLotService.createParkingLot(parkingLotRequest);
+
+        verify(parkingLotRepository).existsByName(parkingLotRequest.getName());
+        verify(daoMapper, times(2)).map(any(ParkingLot.class));
+        verify(parkingLotRepository, times(2)).save(parkingLotEntity);
+        verify(daoMapper).map(any(ParkingLotEntity.class));
+        verify(daoMapper).map(any(ParkingLevel.class));
+        verify(parkingLevelRepository).save(parkingLevelEntity);
+        verify(parkingLevelRepository).getByParkingLotId(anyInt());
+        verify(daoMapper).map(any(ParkingLevelEntity.class));
+        verify(daoMapper).map(any(ParkingSpot.class));
+        verify(parkingSpotRepository).save(parkingSpotEntity);
+        verify(daoMapper).map(any(WorkingTime.class));
+        verify(workingTimeRepository).save(workingTimeEntity);
+
+        assertEquals("Parking Lot was created with success!", response.getMessage());
+
+    }
 
     @Test
     void linkUserToParkingLotSuccessful() {
@@ -222,6 +340,7 @@ class ParkingLotServiceImplTest {
                 .name("ParkingLotName")
                 .address("address")
                 .users(new HashSet<>())
+                .state(false)
                 .build();
         parkingLotEntity.getUsers().add(userEntity);
 
@@ -293,6 +412,13 @@ class ParkingLotServiceImplTest {
         workingTimeEntity.setNameDay(monday);
 
         // Domain
+        final Role role = new Role("Admin");
+        final User user = User.builder()
+                .id(1)
+                .name("username")
+                .phone("063251148")
+                .role(role)
+                .build();
         final WorkingTime workingTime = WorkingTime.builder()
                 .nameDay(monday)
                 .build();
@@ -301,7 +427,7 @@ class ParkingLotServiceImplTest {
                 .floor(1)
                 .totalSpots(1)
                 .build();
-        final ParkingLot parkingLot = new ParkingLot(1, nameOfParkingLot, addressOfParkingLot, NOON, NOON, true, Set.of(workingTime), Set.of(parkingLevel), Set.of(userEntity));
+        final ParkingLot parkingLot = new ParkingLot(1, nameOfParkingLot, addressOfParkingLot, NOON, NOON, true, Set.of(user));
 
         // Dto
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto("Monday");

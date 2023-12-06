@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
-import com.endava.internship.web.dto.CreateParkingLotResponse;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
@@ -39,7 +38,7 @@ public class ParkingLotController {
             description = "This endpoint is used to create a parking lot"
     )
     @PostMapping("/parking-lot")
-    public ResponseEntity<CreateParkingLotResponse> createParkingLot(@RequestBody CreateParkingLotRequest createParkingLotRequest) {
+    public ResponseEntity<ResponseDto> createParkingLot(@RequestBody CreateParkingLotRequest createParkingLotRequest) {
 
         return ResponseEntity.status(CREATED).body(parkingLotService.createParkingLot(createParkingLotRequest));
     }

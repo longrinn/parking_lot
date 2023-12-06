@@ -2,6 +2,7 @@ package com.endava.internship.web.controller;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
+import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
+import com.endava.internship.web.dto.WorkingTimeDto;
+import com.endava.internship.web.request.CreateParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -70,6 +74,24 @@ public class ParkingLotControllerTest {
     }
 
     @Test
+    @WithMockUser
+    void unlinkUserFromParkLot_ShouldReturnOkStatus() throws Exception {
+        UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("test@example.com", "ParkingLot From Test");
+        ResponseDto response = new ResponseDto("Parking Lot was created with success!");
+
+        when(parkingLotService.unlinkUserFromParkingLot(any(UpdateParkLotLinkRequest.class))).thenReturn(response);
+
+        mockMvc.perform(delete("/link-park-lot")
+                        .contentType(APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
+                .andReturn();
+
+        verify(parkingLotService).unlinkUserFromParkingLot(any(UpdateParkLotLinkRequest.class));
+    }
+
+    @Test
     void getAllParkingLots_ShouldReturnListOfParkingLots() throws Exception {
         ParkingLotDetailsDto firstParkingLotDto = new ParkingLotDetailsDto(1, "ParkingLot1", NOON, MIDNIGHT, null, true, 3, 2);
         ParkingLotDetailsDto secondParkingLotDto = new ParkingLotDetailsDto(1, "ParkingLot2", NOON, MIDNIGHT, null, true, 3, 2);
@@ -97,6 +119,34 @@ public class ParkingLotControllerTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(expected)));
 
         verify(parkingLotService).deleteParkingLot(parkingLotId);
+    }
+
+    @Test
+    void createParkingLot_ShouldReturnCreatedStatus() throws Exception {
+        final WorkingTimeDto workingTimeDto = new WorkingTimeDto("Monday");
+        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1);
+
+        final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
+                "Parking Lot From Test",
+                "Random Street",
+                NOON,
+                NOON,
+                true,
+                Set.of(workingTimeDto),
+                Set.of(parkingLevelDto));
+
+        ResponseDto response = new ResponseDto("Parking Lot was created with success!");
+
+        when(parkingLotService.createParkingLot(any(CreateParkingLotRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post("/parking-lot")
+                        .contentType(APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(parkingLotRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)))
+                .andReturn();
+
+        verify(parkingLotService).createParkingLot(any(CreateParkingLotRequest.class));
     }
 
 }

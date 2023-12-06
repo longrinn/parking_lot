@@ -48,7 +48,7 @@ public class ParkingLotEntity {
     private LocalTime endTime;
 
     @NotNull
-    private boolean state;
+    private Boolean state;
 
     @ManyToMany(mappedBy = "parkingLots")
     private Set<UserEntity> users;

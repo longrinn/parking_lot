@@ -17,6 +17,8 @@ public interface ParkingLotRepository extends JpaRepository<ParkingLotEntity, In
 
     boolean existsByName(String name);
 
+    boolean existsByAddress(String name);
+
     List<ParkingLotEntity> findAll();
 
     @Modifying

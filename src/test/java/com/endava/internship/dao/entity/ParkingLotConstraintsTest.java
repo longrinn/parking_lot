@@ -17,6 +17,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.ConstraintViolationException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -80,6 +81,15 @@ public class ParkingLotConstraintsTest {
     }
 
     @Test
+    public void stateIsNull_thenThrowException() {
+        final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, null, null);
+
+        assertThrows(ConstraintViolationException.class, () -> {
+            parkingLotRepository.save(parking_lot_entity);
+        });
+    }
+
+    @Test
     public void workingTimesAreHandledCorrectly() {
         final ParkingLotEntity parking_lot_entity = new ParkingLotEntity(null, "Lot 1", "123 Main St", START_TIME, END_TIME, true, null);
         parkingLotRepository.save(parking_lot_entity);
@@ -118,6 +128,7 @@ public class ParkingLotConstraintsTest {
         assertEquals("456 Another St", updatedEntity.getAddress());
         assertEquals(LocalTime.of(9, 0), updatedEntity.getStartTime());
         assertEquals(LocalTime.of(21, 0), updatedEntity.getEndTime());
+        assertThat(updatedEntity.getState()).isTrue();
     }
 
     @Test

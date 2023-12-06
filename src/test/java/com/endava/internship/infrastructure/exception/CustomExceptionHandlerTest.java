@@ -15,6 +15,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -119,5 +120,44 @@ class CustomExceptionHandlerTest {
         ValidationExceptionResponse validationExceptionResponse = responseEntity.getBody().get(0);
         assertEquals("fieldName", validationExceptionResponse.getFieldName());
         assertEquals("error message", validationExceptionResponse.getErrorMessage());
+    }
+
+    @Test
+    void handleEntityExistsException_ShouldReturnConflictWithErrorMessage() {
+        EntityExistsException exception = new EntityExistsException("Exception message");
+
+        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleEntityExistsException(exception, mockWebRequest);
+
+        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals("Exception message", responseEntity.getBody().getMessage());
+        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
+        assertEquals("Mocked description", responseEntity.getBody().getDescription());
+    }
+
+    @Test
+    void handleEntityAlreadyLinkedException_ShouldReturnBadRequestWithErrorMessage() {
+        EntityAlreadyLinkedException exception = new EntityAlreadyLinkedException("Exception message");
+
+        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleAlreadyLinkedEntitiesException(exception, mockWebRequest);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals("Exception message", responseEntity.getBody().getMessage());
+        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
+        assertEquals("Mocked description", responseEntity.getBody().getDescription());
+    }
+
+    @Test
+    void handleEntityAreNotLinkedException_ShouldReturnBadRequestWithErrorMessage() {
+        EntityAreNotLinkedException exception = new EntityAreNotLinkedException("Exception message");
+
+        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleNotLinkedEntitiesException(exception, mockWebRequest);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+        assertEquals("Exception message", responseEntity.getBody().getMessage());
+        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
+        assertEquals("Mocked description", responseEntity.getBody().getDescription());
     }
 }
