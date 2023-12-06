@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @ResponseStatus(BAD_REQUEST)
-public class EntityAreNotLinkedException extends RuntimeException {
-    public EntityAreNotLinkedException(String message) {
+public class EntityLinkException extends RuntimeException {
+    public EntityLinkException(String message) {
         super(message);
     }
 }

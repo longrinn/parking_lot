@@ -42,13 +42,13 @@ import static org.mockito.Mockito.when;
 public class ParkingSpotServiceImplTest {
 
     @Mock
+    UserRepository userRepository;
+    @Mock
     private DaoMapper daoMapper;
     @Mock
     private ParkingSpotRepository parkingSpotRepository;
     @InjectMocks
     private ParkingSpotServiceImpl parkingSpotService;
-    @Mock
-    UserRepository userRepository;
 
     @Test
     public void whenEditParkingSpotCalled_WithValidSpotIdAndUpdateRequest_ShouldReturnUpdatedDto() {

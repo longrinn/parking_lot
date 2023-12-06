@@ -27,12 +27,13 @@ import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.infrastructure.security.JwtUtils;
 import com.endava.internship.infrastructure.security.UserDetailsImpl;
 import com.endava.internship.infrastructure.service.api.UserService;
-import com.endava.internship.web.dto.AuthenticationResponse;
-import com.endava.internship.web.dto.UserUpdatedRoleResponse;
+import com.endava.internship.web.dto.AuthenticationDto;
+import com.endava.internship.web.dto.UserUpdatedRoleDto;
 import com.endava.internship.web.request.AuthenticationRequest;
 import com.endava.internship.web.request.ChangeRoleRequest;
 import com.endava.internship.web.request.RegistrationRequest;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
@@ -57,12 +58,15 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserRoleChangeEmailListener userRoleChangeEmailListener;
     private final UserLinkToParkLotListener userLinkToParkLotListener;
-
     private final UserUnlinkFromParkingLotListener userUnlinkFromParkLotListener;
 
     @Override
     @Transactional
-    public AuthenticationResponse registration(RegistrationRequest request) {
+    public AuthenticationDto registration(RegistrationRequest request) {
+        if (userRepository.existsByCredentialEmail(request.getEmail())) {
+            throw new EntityExistsException("Email already exists");
+        }
+
         final User user = User.builder()
                 .name(request.getName())
                 .phone(request.getNumber())
@@ -87,7 +91,7 @@ public class UserServiceImpl implements UserService {
 
         final String jwt = jwtUtils.generateToken(credentials.getEmail());
 
-        return AuthenticationResponse.builder()
+        return AuthenticationDto.builder()
                 .email(credentials.getEmail())
                 .role(USER)
                 .jwt(jwt)
@@ -96,7 +100,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public AuthenticationResponse authentication(AuthenticationRequest request) {
+    public AuthenticationDto authentication(AuthenticationRequest request) {
         final Credentials requestCredentials = Credentials.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
@@ -119,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
         final String jwt = jwtUtils.generateToken(userDetails.getUsername());
 
-        return AuthenticationResponse.builder()
+        return AuthenticationDto.builder()
                 .email(userDetails.getUsername())
                 .role(userDetails.getAuthorities().toString().replace("[", "").replace("]", ""))
                 .jwt(jwt)
@@ -128,7 +132,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserUpdatedRoleResponse updateUserRole(ChangeRoleRequest changeRoleRequest) {
+    public UserUpdatedRoleDto updateUserRole(ChangeRoleRequest changeRoleRequest) {
 
         final String standardisedNewRole = StringUtils.capitalize(changeRoleRequest.getRole().toLowerCase().trim());
         final String userEmail = changeRoleRequest.getEmail();

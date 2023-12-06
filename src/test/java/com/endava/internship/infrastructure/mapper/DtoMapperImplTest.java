@@ -18,7 +18,7 @@ import com.endava.internship.infrastructure.domain.WorkingTime;
 import com.endava.internship.web.dto.ParkingLevelDetailsDto;
 import com.endava.internship.web.dto.ParkingLotDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
-import com.endava.internship.web.dto.UserUpdatedRoleResponse;
+import com.endava.internship.web.dto.UserUpdatedRoleDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 
 import static java.time.LocalTime.MIDNIGHT;
@@ -38,10 +38,10 @@ class DtoMapperImplTest {
                 .id(1)
                 .name("User Name")
                 .phone("123456789")
-                .role(new Role(2,"User"))
+                .role(new Role(2, "User"))
                 .build();
 
-        UserUpdatedRoleResponse response = dtoMapper.map(user);
+        UserUpdatedRoleDto response = dtoMapper.map(user);
 
         assertEquals(user.getName(), response.getName());
         assertEquals(user.getRole().getName(), response.getRole().getName());
@@ -49,7 +49,7 @@ class DtoMapperImplTest {
 
     @Test
     void testMapWithNullInput() {
-        UserUpdatedRoleResponse result = dtoMapper.map((User) null);
+        UserUpdatedRoleDto result = dtoMapper.map((User) null);
 
         assertNull(result);
     }
@@ -63,7 +63,7 @@ class DtoMapperImplTest {
                 .role(null)
                 .build();
 
-        UserUpdatedRoleResponse response = dtoMapper.map(user);
+        UserUpdatedRoleDto response = dtoMapper.map(user);
 
         assertNull(response.getRole());
     }

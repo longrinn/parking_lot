@@ -1,6 +1,7 @@
 package com.endava.internship.infrastructure.exception;
 
 import java.sql.SQLException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -78,16 +79,8 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(CONFLICT).body(errorDetails);
     }
 
-    @ExceptionHandler(EntityAlreadyLinkedException.class)
-    public ResponseEntity<ErrorDetails> handleAlreadyLinkedEntitiesException(EntityAlreadyLinkedException ex, WebRequest request) {
-        final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
-                request.getDescription(false));
-
-        return ResponseEntity.status(BAD_REQUEST).body(errorDetails);
-    }
-
-    @ExceptionHandler(EntityAreNotLinkedException.class)
-    public ResponseEntity<ErrorDetails> handleNotLinkedEntitiesException(EntityAreNotLinkedException ex, WebRequest request) {
+    @ExceptionHandler(EntityLinkException.class)
+    public ResponseEntity<ErrorDetails> handleEntityLinkException(EntityLinkException ex, WebRequest request) {
         final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
                 request.getDescription(false));
 
@@ -96,6 +89,14 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(InvalidRequestParameterException.class)
     public ResponseEntity<ErrorDetails> handleInvalidRequestParameterException(InvalidRequestParameterException ex, WebRequest request) {
+        final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
+                request.getDescription(false));
+
+        return ResponseEntity.status(BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(DateTimeException.class)
+    public ResponseEntity<ErrorDetails> handleDateTimeException(DateTimeException ex, WebRequest request) {
         final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
                 request.getDescription(false));
 

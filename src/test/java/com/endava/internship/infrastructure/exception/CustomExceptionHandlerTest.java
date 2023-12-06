@@ -1,12 +1,16 @@
 package com.endava.internship.infrastructure.exception;
 
 import java.sql.SQLException;
+import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,90 +22,47 @@ import org.springframework.web.context.request.WebRequest;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 class CustomExceptionHandlerTest {
 
-    private CustomExceptionHandler customExceptionHandler;
+    private static final String EXCEPTION_MESSAGE = "Exception message";
+    private static final String EXCEPTION_DESCRIPTION = "Mocked description";
 
-    private WebRequest mockWebRequest;
+    private static final CustomExceptionHandler CUSTOM_EXCEPTION_HANDLER = new CustomExceptionHandler();
+    private static final WebRequest WEB_REQUEST = mock(WebRequest.class);
+    private static final int INVOCATIONS;
+    private static final Stream<Arguments> ARGUMENTS_STREAM;
 
-    @BeforeEach
-    public void setup() {
-        customExceptionHandler = new CustomExceptionHandler();
-        mockWebRequest = mock(WebRequest.class);
+    static {
+        when(WEB_REQUEST.getDescription(anyBoolean())).thenReturn(EXCEPTION_DESCRIPTION);
+        final List<Arguments> arguments = List.of(
+                Arguments.of(CUSTOM_EXCEPTION_HANDLER.handleException(new Exception(EXCEPTION_MESSAGE), WEB_REQUEST), BAD_REQUEST),
+                Arguments.of(CUSTOM_EXCEPTION_HANDLER.handleRuntimeException(new RuntimeException(EXCEPTION_MESSAGE), WEB_REQUEST), BAD_REQUEST),
+                Arguments.of(CUSTOM_EXCEPTION_HANDLER.handleSQLException(new SQLException(EXCEPTION_MESSAGE), WEB_REQUEST), BAD_REQUEST),
+                Arguments.of(CUSTOM_EXCEPTION_HANDLER.handleEntityLinkException(new EntityLinkException(EXCEPTION_MESSAGE), WEB_REQUEST), BAD_REQUEST),
+                Arguments.of(CUSTOM_EXCEPTION_HANDLER.handleInvalidRequestParameterException(new InvalidRequestParameterException(EXCEPTION_MESSAGE), WEB_REQUEST), BAD_REQUEST),
+                Arguments.of(CUSTOM_EXCEPTION_HANDLER.handleDateTimeException(new DateTimeException(EXCEPTION_MESSAGE), WEB_REQUEST), BAD_REQUEST),
+                Arguments.of(CUSTOM_EXCEPTION_HANDLER.handleEntityNotFoundException(new EntityNotFoundException(EXCEPTION_MESSAGE), WEB_REQUEST), NOT_FOUND),
+                Arguments.of(CUSTOM_EXCEPTION_HANDLER.handleUsernameNotFoundException(new UsernameNotFoundException(EXCEPTION_MESSAGE), WEB_REQUEST), NOT_FOUND),
+                Arguments.of(CUSTOM_EXCEPTION_HANDLER.handleEntityExistsException(new EntityExistsException(EXCEPTION_MESSAGE), WEB_REQUEST), CONFLICT));
 
-        when(mockWebRequest.getDescription(anyBoolean())).thenReturn("Mocked description");
+        INVOCATIONS = arguments.size();
+        ARGUMENTS_STREAM = arguments.stream();
     }
 
-    @Test
-    void handleException_ShouldReturnBadRequestWithErrorMessage() {
-        Exception exception = new Exception("Exception message");
-
-        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleException(exception, mockWebRequest);
-
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
-        assertEquals("Exception message", responseEntity.getBody().getMessage());
-        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
-        assertEquals("Mocked description", responseEntity.getBody().getDescription());
-    }
-
-    @Test
-    void handleRuntimeException_ShouldReturnBadRequestWithErrorMessage() {
-        RuntimeException exception = new RuntimeException("Exception message");
-
-        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleRuntimeException(exception, mockWebRequest);
-
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
-        assertEquals("Exception message", responseEntity.getBody().getMessage());
-        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
-        assertEquals("Mocked description", responseEntity.getBody().getDescription());
-    }
-
-    @Test
-    void handleUsernameNotFoundException_ShouldReturnNotFoundWithErrorMessage() {
-        UsernameNotFoundException exception = new UsernameNotFoundException("Exception message");
-
-        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleUsernameNotFoundException(exception, mockWebRequest);
-
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
-        assertEquals("Exception message", responseEntity.getBody().getMessage());
-        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
-        assertEquals("Mocked description", responseEntity.getBody().getDescription());
-    }
-
-    @Test
-    void handleEntityNotFoundException_ShouldReturnNotFoundWithErrorMessage() {
-        EntityNotFoundException exception = new EntityNotFoundException("Exception message");
-
-        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleEntityNotFoundException(exception, mockWebRequest);
-
-        assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
-        assertEquals("Exception message", responseEntity.getBody().getMessage());
-        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
-        assertEquals("Mocked description", responseEntity.getBody().getDescription());
-    }
-
-    @Test
-    void handleSQLException_ShouldReturnBadRequestWithErrorMessage() {
-        SQLException exception = new SQLException("Exception message");
-
-
-        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleSQLException(exception, mockWebRequest);
-
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
-        assertEquals("Exception message", responseEntity.getBody().getMessage());
-        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
-        assertEquals("Mocked description", responseEntity.getBody().getDescription());
+    private static Stream<Arguments> exceptionsSource() {
+        return ARGUMENTS_STREAM;
     }
 
     @Test
@@ -113,51 +74,24 @@ class CustomExceptionHandlerTest {
         when(exception.getBindingResult()).thenReturn(bindingResult);
         when(bindingResult.getAllErrors()).thenReturn(Collections.singletonList(fieldError));
 
-        ResponseEntity<List<ValidationExceptionResponse>> responseEntity = customExceptionHandler.handleMethodArgumentNotValidException(exception);
+        ResponseEntity<List<ValidationExceptionResponse>> responseEntity = CUSTOM_EXCEPTION_HANDLER.handleMethodArgumentNotValidException(exception);
 
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+        assertEquals(BAD_REQUEST, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
         ValidationExceptionResponse validationExceptionResponse = responseEntity.getBody().get(0);
         assertEquals("fieldName", validationExceptionResponse.getFieldName());
         assertEquals("error message", validationExceptionResponse.getErrorMessage());
     }
 
-    @Test
-    void handleEntityExistsException_ShouldReturnConflictWithErrorMessage() {
-        EntityExistsException exception = new EntityExistsException("Exception message");
+    @ParameterizedTest
+    @MethodSource("exceptionsSource")
+    void handleException_ShouldReturnBadRequestWithErrorMessage(ResponseEntity<ErrorDetails> responseEntity, HttpStatus status) {
+        assertThat(responseEntity.getStatusCode()).isEqualTo(status);
+        assertThat(responseEntity.getBody()).isNotNull();
+        assertThat(responseEntity.getBody().getMessage()).isEqualTo(EXCEPTION_MESSAGE);
+        assertThat(responseEntity.getBody().getTimeStamp()).isEqualTo(LocalDate.now());
+        assertThat(responseEntity.getBody().getDescription()).isEqualTo(EXCEPTION_DESCRIPTION);
 
-        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleEntityExistsException(exception, mockWebRequest);
-
-        assertEquals(HttpStatus.CONFLICT, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
-        assertEquals("Exception message", responseEntity.getBody().getMessage());
-        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
-        assertEquals("Mocked description", responseEntity.getBody().getDescription());
-    }
-
-    @Test
-    void handleEntityAlreadyLinkedException_ShouldReturnBadRequestWithErrorMessage() {
-        EntityAlreadyLinkedException exception = new EntityAlreadyLinkedException("Exception message");
-
-        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleAlreadyLinkedEntitiesException(exception, mockWebRequest);
-
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
-        assertEquals("Exception message", responseEntity.getBody().getMessage());
-        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
-        assertEquals("Mocked description", responseEntity.getBody().getDescription());
-    }
-
-    @Test
-    void handleEntityAreNotLinkedException_ShouldReturnBadRequestWithErrorMessage() {
-        EntityAreNotLinkedException exception = new EntityAreNotLinkedException("Exception message");
-
-        ResponseEntity<ErrorDetails> responseEntity = customExceptionHandler.handleNotLinkedEntitiesException(exception, mockWebRequest);
-
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertNotNull(responseEntity.getBody());
-        assertEquals("Exception message", responseEntity.getBody().getMessage());
-        assertEquals(LocalDate.now(), responseEntity.getBody().getTimeStamp());
-        assertEquals("Mocked description", responseEntity.getBody().getDescription());
+        verify(WEB_REQUEST, times(INVOCATIONS)).getDescription(anyBoolean());
     }
 }

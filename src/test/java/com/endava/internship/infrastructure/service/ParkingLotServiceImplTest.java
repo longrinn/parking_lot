@@ -1,7 +1,7 @@
 package com.endava.internship.infrastructure.service;
 
+import java.time.DateTimeException;
 import java.time.LocalTime;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -32,8 +32,8 @@ import com.endava.internship.infrastructure.domain.ParkingSpot;
 import com.endava.internship.infrastructure.domain.Role;
 import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.domain.WorkingTime;
-import com.endava.internship.infrastructure.exception.EntityAlreadyLinkedException;
-import com.endava.internship.infrastructure.exception.EntityAreNotLinkedException;
+import com.endava.internship.infrastructure.exception.EntityLinkException;
+import com.endava.internship.infrastructure.exception.InvalidRequestParameterException;
 import com.endava.internship.infrastructure.listeners.UserLinkToParkLotListener;
 import com.endava.internship.infrastructure.listeners.UserUnlinkFromParkingLotListener;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
@@ -46,8 +46,8 @@ import com.endava.internship.web.dto.ParkingSpotDtoAdmin;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
-import com.endava.internship.web.request.CreateParkingLotRequest;
 import com.endava.internship.web.request.GetSpecificParkingLotRequest;
+import com.endava.internship.web.request.ParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import jakarta.persistence.EntityExistsException;
@@ -85,10 +85,8 @@ class ParkingLotServiceImplTest {
     UserLinkToParkLotListener userLinkToParkLotListener;
     @Mock
     ParkingLevelRepository parkingLevelRepository;
-
     @Mock
     ParkingSpotRepository parkingSpotRepository;
-
     @Mock
     WorkingTimeRepository workingTimeRepository;
     @Mock
@@ -107,7 +105,7 @@ class ParkingLotServiceImplTest {
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto(monday);
         final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1, 1);
 
-        final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
+        final ParkingLotRequest parkingLotRequest = new ParkingLotRequest(
                 nameOfParkingLot,
                 addressOfParkingLot,
                 LocalTime.of(6, 0, 0),
@@ -132,7 +130,7 @@ class ParkingLotServiceImplTest {
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto(monday);
         final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1, 1);
 
-        final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
+        final ParkingLotRequest parkingLotRequest = new ParkingLotRequest(
                 nameOfParkingLot,
                 addressOfParkingLot,
                 LocalTime.of(6, 0, 0),
@@ -157,7 +155,7 @@ class ParkingLotServiceImplTest {
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto(monday);
         final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1, 1);
 
-        final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
+        final ParkingLotRequest parkingLotRequest = new ParkingLotRequest(
                 nameOfParkingLot,
                 addressOfParkingLot,
                 LocalTime.of(6, 0, 0),
@@ -283,7 +281,7 @@ class ParkingLotServiceImplTest {
     }
 
     @Test
-    void linkUserToParkingLotEntitiesMoreTimes_throwsEntityAlreadyLinkedException() {
+    void linkUserToParkingLotEntitiesMoreTimes_throwsEntityLinkException() {
         UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
         RoleEntity roleEntity = new RoleEntity(1, "User");
         CredentialsEntity credentialsEntity = new CredentialsEntity(1, null, "user@example.com", "Password");
@@ -295,7 +293,7 @@ class ParkingLotServiceImplTest {
 
         userEntity.getParkingLots().add(parkingLotEntity);
 
-        assertThrows(EntityAlreadyLinkedException.class, () -> parkingLotService.linkUserToParkingLot(request));
+        assertThrows(EntityLinkException.class, () -> parkingLotService.linkUserToParkingLot(request));
     }
 
     @Test
@@ -370,7 +368,7 @@ class ParkingLotServiceImplTest {
     }
 
     @Test
-    void unlinkUserFromParkingLotNotLinked_ShouldThrowEntityAreNotLinkedException() {
+    void unlinkUserFromParkingLotNotLinked_ShouldThrowEntityLinkException() {
         final UpdateParkLotLinkRequest request = new UpdateParkLotLinkRequest("user@example.com", "ParkingLotName");
         final RoleEntity roleEntity = new RoleEntity(1, "User");
         final CredentialsEntity credentialsEntity = new CredentialsEntity(1, null, "user@example.com", "Password");
@@ -380,7 +378,7 @@ class ParkingLotServiceImplTest {
         when(userRepository.findByCredential_Email(request.getUserEmail())).thenReturn(Optional.of(userEntity));
         when(parkingLotRepository.findByName(request.getParkingLotName())).thenReturn(Optional.of(parkingLotEntity));
 
-        assertThrows(EntityAreNotLinkedException.class, () -> parkingLotService.unlinkUserFromParkingLot(request));
+        assertThrows(EntityLinkException.class, () -> parkingLotService.unlinkUserFromParkingLot(request));
     }
 
     @Test
@@ -436,7 +434,7 @@ class ParkingLotServiceImplTest {
 
         // Dto
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto("Monday");
-        final ParkingLotDetailsDto parkingLotDetailsDto = new ParkingLotDetailsDto(parkingLot.getId(), nameOfParkingLot, NOON, NOON, Set.of(workingTimeDto), true, 1, 0);
+        final ParkingLotDetailsDto parkingLotDetailsDto = new ParkingLotDetailsDto(parkingLot.getId(), nameOfParkingLot, addressOfParkingLot, NOON, NOON, Set.of(workingTimeDto), true, 1, 0);
 
         when(parkingLotRepository.findAll()).thenReturn(List.of(parkingLotEntity));
         when(daoMapper.map(any(ParkingLotEntity.class))).thenReturn(parkingLot);
@@ -512,7 +510,7 @@ class ParkingLotServiceImplTest {
                 .nameDay(name)
                 .build();
         final Set<ParkingSpotDtoAdmin> parkingSpots = new HashSet<>();
-        final ParkingSpotDtoAdmin parkingSpotDtoAdmin = new ParkingSpotDtoAdmin(1,name,true,"regular", 1, "023154485");
+        final ParkingSpotDtoAdmin parkingSpotDtoAdmin = new ParkingSpotDtoAdmin(1, name, true, "regular", 1, "023154485");
         parkingSpots.add(parkingSpotDtoAdmin);
         final ParkingLevelDetailsDto parkingLevelDetailsDto = ParkingLevelDetailsDto.builder()
                 .id(1)
@@ -583,9 +581,9 @@ class ParkingLotServiceImplTest {
     void deleteParkingLotWithAllRelatedEntities_isSuccess() {
         Integer parkingLotId = 1;
         ParkingLotEntity parkingLotEntity = new ParkingLotEntity();
-        List<ParkingLevelEntity> levels = Arrays.asList(new ParkingLevelEntity());
-        List<ParkingSpotEntity> spots = Arrays.asList(new ParkingSpotEntity());
-        Set<WorkingTimeEntity> workingTimes = new HashSet<>(Arrays.asList(new WorkingTimeEntity()));
+        List<ParkingLevelEntity> levels = List.of(new ParkingLevelEntity());
+        List<ParkingSpotEntity> spots = List.of(new ParkingSpotEntity());
+        Set<WorkingTimeEntity> workingTimes = new HashSet<>(List.of(new WorkingTimeEntity()));
 
         when(parkingLotRepository.findById(parkingLotId)).thenReturn(Optional.of(parkingLotEntity));
         when(parkingLevelRepository.getByParkingLotId(parkingLotEntity.getId())).thenReturn(levels);
@@ -626,5 +624,291 @@ class ParkingLotServiceImplTest {
 
         assertThrows(EntityNotFoundException.class, () ->
                 parkingLotService.deleteParkingLot(parkingLotId));
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenNameExists_ShouldThrowEntityExistsException() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+
+        ParkingLotEntity updatingParkingLot = new ParkingLotEntity();
+        updatingParkingLot.setId(2);
+        updatingParkingLot.setName("UpdatingName");
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(new WorkingTimeDto("Monday"));
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 100));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("ExistingName", "NewAddress", MIDNIGHT, NOON, true, workingTimeDto, parkingLevelDto);
+
+        when(parkingLotRepository.getParkingLotEntitiesById(2)).thenReturn(Optional.of(updatingParkingLot));
+        when(parkingLotRepository.existsByName("ExistingName")).thenReturn(true);
+
+        assertThrows(EntityExistsException.class, () ->
+                parkingLotService.updateParkingLot(2, parkingLotRequest));
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(2);
+        verify(parkingLotRepository).existsByName("ExistingName");
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenAddressExists_ShouldThrowEntityExistsException() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+        existingParkingLot.setAddress("ExistingAddress");
+
+        ParkingLotEntity updatingParkingLot = new ParkingLotEntity();
+        updatingParkingLot.setId(2);
+        updatingParkingLot.setName("UpdatingName");
+        updatingParkingLot.setAddress("UpdatingAddress");
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(new WorkingTimeDto("Monday"));
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 100));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("UpdatingName", "ExistingAddress", MIDNIGHT, NOON, true, workingTimeDto, parkingLevelDto);
+
+
+        when(parkingLotRepository.getParkingLotEntitiesById(2)).thenReturn(java.util.Optional.of(updatingParkingLot));
+        when(parkingLotRepository.existsByAddress("ExistingAddress")).thenReturn(true);
+
+        assertThrows(EntityExistsException.class, () ->
+                parkingLotService.updateParkingLot(2, parkingLotRequest));
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(2);
+        verify(parkingLotRepository).existsByAddress("ExistingAddress");
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenParkingLotNotFound_ShouldThrowEntityNotFoundException() {
+        when(parkingLotRepository.getParkingLotEntitiesById(1)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () ->
+                parkingLotService.updateParkingLot(1, any(ParkingLotRequest.class)));
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(1);
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenStartHourIsAfterEndHour_ShouldThrowDateTimeException() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+        existingParkingLot.setAddress("ExistingAddress");
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(new WorkingTimeDto("Monday"));
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 100));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("UpdatingName", "ExistingAddress", LocalTime.of(20, 0), LocalTime.of(10, 0), true, workingTimeDto, parkingLevelDto);
+
+        when(parkingLotRepository.getParkingLotEntitiesById(1)).thenReturn(Optional.of(existingParkingLot));
+
+        assertThrows(DateTimeException.class, () ->
+                parkingLotService.updateParkingLot(1, parkingLotRequest));
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(1);
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenGivenWrongWeekDay_ShouldThrowDateTimeException() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+        existingParkingLot.setAddress("ExistingAddress");
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(new WorkingTimeDto("Actually not even close to a day of the week"));
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 100));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("UpdatingName", "ExistingAddress", MIDNIGHT, NOON, true, workingTimeDto, parkingLevelDto);
+
+        when(parkingLotRepository.getParkingLotEntitiesById(1)).thenReturn(Optional.of(existingParkingLot));
+
+        assertThrows(DateTimeException.class, () ->
+                parkingLotService.updateParkingLot(1, parkingLotRequest));
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(1);
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenGivenTwoOfTheSameWeekDay_ShouldThrowDateTimeException() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+        existingParkingLot.setAddress("ExistingAddress");
+
+        WorkingTimeDto monday1 = new WorkingTimeDto("Monday");
+        WorkingTimeDto monday2 = new WorkingTimeDto("Monday");
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(monday1, monday2);
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 100));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("UpdatingName", "ExistingAddress", MIDNIGHT, NOON, true, workingTimeDto, parkingLevelDto);
+
+        when(parkingLotRepository.getParkingLotEntitiesById(1)).thenReturn(Optional.of(existingParkingLot));
+
+        assertThrows(DateTimeException.class, () ->
+                parkingLotService.updateParkingLot(1, parkingLotRequest));
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(1);
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenGivenMoreThanFiveFloors_ShouldInvalidRequestParameterException() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+        existingParkingLot.setAddress("ExistingAddress");
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(new WorkingTimeDto("Monday"));
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 100),
+                new ParkingLevelDto(2, 2, 100),
+                new ParkingLevelDto(3, 3, 100),
+                new ParkingLevelDto(4, 4, 100),
+                new ParkingLevelDto(5, 5, 100),
+                new ParkingLevelDto(6, 6, 100));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("UpdatingName", "ExistingAddress", MIDNIGHT, NOON, true, workingTimeDto, parkingLevelDto);
+
+        when(parkingLotRepository.getParkingLotEntitiesById(1)).thenReturn(Optional.of(existingParkingLot));
+
+        assertThrows(InvalidRequestParameterException.class, () ->
+                parkingLotService.updateParkingLot(1, parkingLotRequest));
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(1);
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenGivingMoreSpots_ShouldReturnUpdatedMessage() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+        existingParkingLot.setAddress("ExistingAddress");
+
+        ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
+                .id(1)
+                .parkingLot(existingParkingLot)
+                .floor(1)
+                .totalSpots(1)
+                .build();
+
+        ParkingSpotEntity parkingSpotEntity = new ParkingSpotEntity(1, parkingLevelEntity, "A-001", true, "Regular", null);
+
+        parkingLevelEntity.setParkingSpots(Set.of(parkingSpotEntity));
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(new WorkingTimeDto("Monday"));
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 2));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("ExistingAddress", "ExistingAddress", MIDNIGHT, NOON, true, workingTimeDto, parkingLevelDto);
+
+        when(parkingLotRepository.getParkingLotEntitiesById(1)).thenReturn(Optional.of(existingParkingLot));
+        when(parkingLevelRepository.getByParkingLotId(1)).thenReturn(List.of(parkingLevelEntity));
+
+        parkingLotService.updateParkingLot(1, parkingLotRequest);
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(1);
+        verify(parkingLevelRepository, times(2)).getByParkingLotId(1);
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenGivingMoreFloors_ShouldReturnUpdatedMessage() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+        existingParkingLot.setAddress("ExistingAddress");
+
+        ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
+                .id(1)
+                .parkingLot(existingParkingLot)
+                .floor(1)
+                .totalSpots(1)
+                .build();
+
+        ParkingSpotEntity parkingSpotEntity = new ParkingSpotEntity(1, parkingLevelEntity, "A-001", true, "Regular", null);
+
+        parkingLevelEntity.setParkingSpots(Set.of(parkingSpotEntity));
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(new WorkingTimeDto("Monday"));
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 1), new ParkingLevelDto(2, 2, 1));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("ExistingAddress", "ExistingAddress", MIDNIGHT, NOON, true, workingTimeDto, parkingLevelDto);
+
+        when(parkingLotRepository.getParkingLotEntitiesById(1)).thenReturn(Optional.of(existingParkingLot));
+        when(parkingLevelRepository.getByParkingLotId(1)).thenReturn(List.of(parkingLevelEntity));
+
+        parkingLotService.updateParkingLot(1, parkingLotRequest);
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(1);
+        verify(parkingLevelRepository, times(2)).getByParkingLotId(1);
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenGivingLessSpots_ShouldReturnUpdatedMessage() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+        existingParkingLot.setAddress("ExistingAddress");
+
+        ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
+                .id(1)
+                .parkingLot(existingParkingLot)
+                .floor(1)
+                .totalSpots(2)
+                .build();
+
+        ParkingSpotEntity parkingSpotEntity = new ParkingSpotEntity(1, parkingLevelEntity, "A-001", true, "Regular", null);
+        ParkingSpotEntity parkingSpotEntity2 = new ParkingSpotEntity(2, parkingLevelEntity, "A-002", true, "Regular", null);
+
+        parkingLevelEntity.setParkingSpots(Set.of(parkingSpotEntity, parkingSpotEntity2));
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(new WorkingTimeDto("Monday"));
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 1));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("ExistingAddress", "ExistingAddress", MIDNIGHT, NOON, true, workingTimeDto, parkingLevelDto);
+
+        when(parkingLotRepository.getParkingLotEntitiesById(1)).thenReturn(Optional.of(existingParkingLot));
+        when(parkingLevelRepository.getByParkingLotId(1)).thenReturn(List.of(parkingLevelEntity));
+        when(parkingSpotRepository.getAllParkingSpotEntitiesByParkingLevelIdOrderByIdDesc(1)).thenReturn(List.of(parkingSpotEntity, parkingSpotEntity2));
+
+        parkingLotService.updateParkingLot(1, parkingLotRequest);
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(1);
+        verify(parkingLevelRepository, times(2)).getByParkingLotId(1);
+        verify(parkingSpotRepository).getAllParkingSpotEntitiesByParkingLevelIdOrderByIdDesc(1);
+
+    }
+
+    @Test
+    void testUpdateParkingLot_WhenGivingLessFloors_ShouldReturnUpdatedMessage() {
+        ParkingLotEntity existingParkingLot = new ParkingLotEntity();
+        existingParkingLot.setId(1);
+        existingParkingLot.setName("ExistingName");
+        existingParkingLot.setAddress("ExistingAddress");
+
+        ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
+                .id(1)
+                .parkingLot(existingParkingLot)
+                .floor(1)
+                .totalSpots(1)
+                .build();
+
+        ParkingSpotEntity parkingSpotEntity = new ParkingSpotEntity(1, parkingLevelEntity, "A-001", true, "Regular", null);
+
+        parkingLevelEntity.setParkingSpots(Set.of(parkingSpotEntity));
+
+        ParkingLevelEntity parkingLevelEntity1 = ParkingLevelEntity.builder()
+                .id(2)
+                .parkingLot(existingParkingLot)
+                .floor(2)
+                .totalSpots(1)
+                .build();
+
+        ParkingSpotEntity parkingSpotEntity1 = new ParkingSpotEntity(2, parkingLevelEntity1, "B-001", true, "Regular", null);
+
+        parkingLevelEntity1.setParkingSpots(Set.of(parkingSpotEntity1));
+
+        Set<WorkingTimeDto> workingTimeDto = Set.of(new WorkingTimeDto("Monday"));
+        Set<ParkingLevelDto> parkingLevelDto = Set.of(new ParkingLevelDto(1, 1, 1));
+        ParkingLotRequest parkingLotRequest = new ParkingLotRequest("ExistingAddress", "ExistingAddress", MIDNIGHT, NOON, true, workingTimeDto, parkingLevelDto);
+
+        when(parkingLotRepository.getParkingLotEntitiesById(1)).thenReturn(Optional.of(existingParkingLot));
+        when(parkingLevelRepository.getByParkingLotId(1)).thenReturn(List.of(parkingLevelEntity, parkingLevelEntity1)).thenReturn(List.of(parkingLevelEntity));
+        when(parkingSpotRepository.findByParkingLevelId(2)).thenReturn(Optional.of(List.of(parkingSpotEntity1)));
+
+        parkingLotService.updateParkingLot(1, parkingLotRequest);
+
+        verify(parkingLotRepository).getParkingLotEntitiesById(1);
+        verify(parkingLevelRepository, times(2)).getByParkingLotId(1);
+        verify(parkingSpotRepository).findByParkingLevelId(2);
     }
 }

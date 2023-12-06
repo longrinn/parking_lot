@@ -1,5 +1,6 @@
 package com.endava.internship.infrastructure.service;
 
+import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,8 +28,8 @@ import com.endava.internship.infrastructure.domain.ParkingLot;
 import com.endava.internship.infrastructure.domain.ParkingSpot;
 import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.domain.WorkingTime;
-import com.endava.internship.infrastructure.exception.EntityAlreadyLinkedException;
-import com.endava.internship.infrastructure.exception.EntityAreNotLinkedException;
+import com.endava.internship.infrastructure.exception.EntityLinkException;
+import com.endava.internship.infrastructure.exception.InvalidRequestParameterException;
 import com.endava.internship.infrastructure.listeners.UserLinkToParkLotListener;
 import com.endava.internship.infrastructure.listeners.UserUnlinkFromParkingLotListener;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
@@ -42,8 +43,8 @@ import com.endava.internship.web.dto.ParkingSpotDtoAdmin;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
-import com.endava.internship.web.request.CreateParkingLotRequest;
 import com.endava.internship.web.request.GetSpecificParkingLotRequest;
+import com.endava.internship.web.request.ParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import jakarta.persistence.EntityExistsException;
@@ -52,6 +53,7 @@ import lombok.RequiredArgsConstructor;
 
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.ENTITIES_ALREADY_LINKED;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.ENTITIES_NOT_LINKED;
+import static com.endava.internship.infrastructure.util.ParkingLotConstants.PARKING_LOT_ID_NOT_FOUND_ERROR_MESSAGE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.PARKING_LOT_ID_NOT_FOUND_MESSAGE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.PARKING_LOT_NAME_NOT_FOUND_ERROR_MESSAGE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.USER_EMAIL_NOT_FOUND_ERROR_MESSAGE;
@@ -73,15 +75,43 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     private final UserUnlinkFromParkingLotListener userUnlinkFromParkLotListener;
     private final JdbcTemplate jdbcTemplate;
 
+    private static void validateRequest(ParkingLotRequest parkingLotRequest) {
+        if (parkingLotRequest.getEndTime().isBefore(parkingLotRequest.getStartTime())) {
+            throw new DateTimeException("Starting hour cannot be after end hour");
+        }
+
+        List<String> weekdays = List.of("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+
+        Set<String> savedDays = new HashSet<>();
+        for (WorkingTimeDto workingTimeDto : parkingLotRequest.getWorkingTimesDto()) {
+            String dayOfTheWeek = workingTimeDto.getNameDay();
+            if (!weekdays.contains(dayOfTheWeek)) {
+                throw new DateTimeException("Not a day of the week");
+            }
+            if (!savedDays.contains(dayOfTheWeek)) {
+                savedDays.add(dayOfTheWeek);
+            } else {
+                throw new DateTimeException("Duplicated day of the week");
+            }
+        }
+
+        if (parkingLotRequest.getParkingLevelsDto().size() > 5) {
+            throw new InvalidRequestParameterException("Floors cannot exceed 5");
+        }
+    }
+
     @Override
     @Transactional
-    public ResponseDto createParkingLot(CreateParkingLotRequest createParkingLotRequest) {
+    public ResponseDto createParkingLot(ParkingLotRequest createParkingLotRequest) {
         String parkingLotName = createParkingLotRequest.getName();
         String parkingLotAddress = createParkingLotRequest.getAddress();
 
         if (parkingLotRepository.existsByName(parkingLotName) ||
                 parkingLotRepository.existsByAddress(parkingLotAddress))
             throw new EntityExistsException("Parking Lot with the specified name or address already exists");
+
+        validateRequest(createParkingLotRequest);
+
         // Create ParkingLot
         ParkingLot parkingLotToBeSaved = ParkingLot.builder()
                 .name(parkingLotName)
@@ -117,9 +147,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
                         .type("Regular")
                         .available(true)
                         .build();
-
-                ParkingSpotEntity parkingSpotEntity = daoMapper.map(parkingSpot);
-                parkingSpotRepository.save(parkingSpotEntity);
+                parkingSpotRepository.save(daoMapper.map(parkingSpot));
             }
             counterOfLevels++;
 
@@ -130,12 +158,10 @@ public class ParkingLotServiceImpl implements ParkingLotService {
                     .parkingLot(parkingLot)
                     .nameDay(workingTimeDto.getNameDay())
                     .build();
-            WorkingTimeEntity workingTimeEntity = daoMapper.map(workingTime);
-            workingTimeRepository.save(workingTimeEntity);
+            workingTimeRepository.save(daoMapper.map(workingTime));
         }
         // Save ParkingLot
-        ParkingLotEntity parkingLotEntity1 = daoMapper.map(parkingLot);
-        parkingLotRepository.save(parkingLotEntity1);
+        parkingLotRepository.save(daoMapper.map(parkingLot));
 
         // return response
         return new ResponseDto("Parking Lot was created with success!");
@@ -143,38 +169,106 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Override
     @Transactional
-    public UserToParkingLotDto linkUserToParkingLot(UpdateParkLotLinkRequest updateParkLotLinkRequest) {
+    public ResponseDto updateParkingLot(Integer id, ParkingLotRequest parkingLotRequest) {
+        final ParkingLotEntity parkingLotEntity = parkingLotRepository.getParkingLotEntitiesById(id).
+                orElseThrow(() -> new EntityNotFoundException(
+                        String.format(PARKING_LOT_ID_NOT_FOUND_ERROR_MESSAGE, id)
+                ));
 
-        final String parkingLotName = updateParkLotLinkRequest.getParkingLotName();
-        final String userEmail = updateParkLotLinkRequest.getUserEmail();
-
-        final UserEntity userEntity = userRepository.findByCredential_Email(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format(USER_EMAIL_NOT_FOUND_ERROR_MESSAGE, userEmail)));
-
-        final ParkingLotEntity parkingLotEntity = parkingLotRepository.findByName(parkingLotName)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format(PARKING_LOT_NAME_NOT_FOUND_ERROR_MESSAGE, parkingLotName)));
-
-        if (userEntity.getParkingLots().contains(parkingLotEntity)) {
-            throw new EntityAlreadyLinkedException(String.format(ENTITIES_ALREADY_LINKED));
+        if (!parkingLotEntity.getName().equals(parkingLotRequest.getName()) && parkingLotRepository.existsByName(parkingLotRequest.getName())) {
+            throw new EntityExistsException("Parking Lot with the specified name already exists");
         }
 
-        userEntity.getParkingLots().add(parkingLotEntity);
-        userRepository.save(userEntity);
-
-        User userDomain = daoMapper.map(userEntity);
-        ParkingLot parkingLotDomain = daoMapper.map(parkingLotEntity);
-
-        final Set<ParkingLotEntity> userNewParkingLots = userEntity.getParkingLots();
-
-        UserToParkingLotDto emailDetails = new UserToParkingLotDto(userEntity.getCredential().getEmail(), userEntity.getName(), parkingLotEntity.getName(), parkingLotEntity.getAddress());
-
-        if (userNewParkingLots.contains(parkingLotEntity)) {
-            userLinkToParkLotListener.handleUserLinkToParkLotEvent(emailDetails);
+        if (!parkingLotEntity.getAddress().equals(parkingLotRequest.getAddress()) && parkingLotRepository.existsByAddress(parkingLotRequest.getAddress())) {
+            throw new EntityExistsException("Parking Lot with the specified address already exists");
         }
 
-        return dtoMapper.map(userDomain, parkingLotDomain, userEmail);
+        validateRequest(parkingLotRequest);
+
+        workingTimeRepository.deleteByParkingLotId(parkingLotEntity.getId());
+        for (WorkingTimeDto workingTimeDto : parkingLotRequest.getWorkingTimesDto()) {
+            WorkingTime workingTime = WorkingTime.builder()
+                    .parkingLot(daoMapper.map(parkingLotEntity))
+                    .nameDay(workingTimeDto.getNameDay())
+                    .build();
+            workingTimeRepository.save(daoMapper.map(workingTime));
+        }
+
+        parkingLotEntity.setName(parkingLotRequest.getName());
+        parkingLotEntity.setAddress(parkingLotRequest.getAddress());
+        parkingLotEntity.setStartTime(parkingLotRequest.getStartTime());
+        parkingLotEntity.setEndTime(parkingLotRequest.getEndTime());
+        parkingLotEntity.setState(parkingLotRequest.isState());
+
+        List<ParkingLevelEntity> parkingLevelEntity = parkingLevelRepository.getByParkingLotId(id);
+        final List<ParkingLevelDto> parkingLevelDtoList = new ArrayList<>(parkingLotRequest.getParkingLevelsDto());
+
+        int numberOfLevels = parkingLevelEntity.size();
+        while (numberOfLevels < parkingLevelDtoList.size()) {
+            Integer totalSpots = parkingLevelDtoList.get(numberOfLevels).getTotalSpots();
+
+            ParkingLevelEntity levelBuild = ParkingLevelEntity.builder()
+                    .parkingLot(parkingLotEntity)
+                    .floor(++numberOfLevels)
+                    .totalSpots(totalSpots)
+                    .build();
+            parkingLevelRepository.save(levelBuild);
+
+            for (int i = 0; i < totalSpots; i++) {
+                ParkingSpot parkingSpot = ParkingSpot.builder()
+                        .parkingLevel(daoMapper.map(levelBuild))
+                        .available(true)
+                        .type("Regular")
+                        .build();
+                parkingSpotRepository.save(daoMapper.map(parkingSpot));
+            }
+        }
+
+        while (numberOfLevels > parkingLevelDtoList.size()) {
+            numberOfLevels--;
+            Optional<List<ParkingSpotEntity>> spotsOpt = parkingSpotRepository.findByParkingLevelId(parkingLevelEntity.get(numberOfLevels).getId());
+            if (spotsOpt.isPresent()) {
+                List<ParkingSpotEntity> spots = spotsOpt.get();
+                List<Integer> spotIds = spots.stream()
+                        .map(ParkingSpotEntity::getId)
+                        .toList();
+
+                if (!spotIds.isEmpty()) {
+                    parkingSpotRepository.deleteRelationUserSpotBySpotIds(spotIds);
+                }
+                parkingSpotRepository.deleteAll(spots);
+            }
+            parkingLevelRepository.delete(parkingLevelEntity.get(numberOfLevels));
+        }
+
+        parkingLevelEntity = parkingLevelRepository.getByParkingLotId(id);
+
+        for (int i = 0; i < parkingLevelEntity.size(); i++) {
+            ParkingLevelEntity levelEntity = parkingLevelEntity.get(i);
+            ParkingLevelDto levelDto = parkingLevelDtoList.get(i);
+            int difference = Math.abs(levelDto.getTotalSpots() - levelEntity.getTotalSpots());
+
+            if (levelEntity.getTotalSpots() < levelDto.getTotalSpots()) {
+                for (int j = 0; j < difference; j++) {
+                    parkingSpotRepository.save(ParkingSpotEntity.builder()
+                            .parkingLevel(levelEntity)
+                            .available(true)
+                            .type("Regular")
+                            .build());
+                }
+            } else if (levelEntity.getTotalSpots() > levelDto.getTotalSpots()) {
+                List<ParkingSpotEntity> spotEntity = parkingSpotRepository.getAllParkingSpotEntitiesByParkingLevelIdOrderByIdDesc(levelEntity.getId());
+                for (int s = 0; s < difference; s++) {
+                    Integer spotId = spotEntity.get(s).getId();
+
+                    parkingSpotRepository.deleteRelationUserSpotBySpotId(spotId);
+                    parkingSpotRepository.deleteParkingSpotEntityById(spotId);
+                }
+            }
+            levelEntity.setTotalSpots(levelDto.getTotalSpots());
+        }
+
+        return new ResponseDto("Parking lot has been edited successfully");
     }
 
     @Override
@@ -205,7 +299,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
                     .flatMap(Collection::stream)
                     .collect(toSet());
 
-            ParkingLotDetailsDto response = new ParkingLotDetailsDto(parkingLot.getId(), parkingLot.getName(), parkingLot.getStartTime(), parkingLot.getEndTime(),
+            ParkingLotDetailsDto response = new ParkingLotDetailsDto(parkingLot.getId(), parkingLot.getName(), parkingLot.getAddress(), parkingLot.getStartTime(), parkingLot.getEndTime(),
                     workingTimeDtos, parkingLot.isState(), totalSpots, unavailableSpots);
             parkingLotDetailsDtos.add(response);
         }
@@ -214,21 +308,47 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Override
     @Transactional
+    public UserToParkingLotDto linkUserToParkingLot(UpdateParkLotLinkRequest updateParkLotLinkRequest) {
+
+        final String userEmail = updateParkLotLinkRequest.getUserEmail();
+        final String parkingLotName = updateParkLotLinkRequest.getParkingLotName();
+
+        final UserEntity userEntity = getUserEntity(userEmail);
+        final ParkingLotEntity parkingLotEntity = getParkingLotEntity(parkingLotName);
+
+        if (userEntity.getParkingLots().contains(parkingLotEntity)) {
+            throw new EntityLinkException(String.format(ENTITIES_ALREADY_LINKED));
+        }
+
+        userEntity.getParkingLots().add(parkingLotEntity);
+        userRepository.save(userEntity);
+
+        User userDomain = daoMapper.map(userEntity);
+        ParkingLot parkingLotDomain = daoMapper.map(parkingLotEntity);
+
+        final Set<ParkingLotEntity> userNewParkingLots = userEntity.getParkingLots();
+
+        UserToParkingLotDto emailDetails = new UserToParkingLotDto(userEntity.getCredential().getEmail(), userEntity.getName(), parkingLotEntity.getName(), parkingLotEntity.getAddress());
+
+        if (userNewParkingLots.contains(parkingLotEntity)) {
+            userLinkToParkLotListener.handleUserLinkToParkLotEvent(emailDetails);
+        }
+
+        return dtoMapper.map(userDomain, parkingLotDomain, userEmail);
+    }
+
+    @Override
+    @Transactional
     public ResponseDto unlinkUserFromParkingLot(UpdateParkLotLinkRequest updateParkLotLinkRequest) {
 
-        final String parkingLotName = updateParkLotLinkRequest.getParkingLotName();
         final String userEmail = updateParkLotLinkRequest.getUserEmail();
+        final String parkingLotName = updateParkLotLinkRequest.getParkingLotName();
 
-        final UserEntity userEntity = userRepository.findByCredential_Email(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format(USER_EMAIL_NOT_FOUND_ERROR_MESSAGE, userEmail)));
-
-        final ParkingLotEntity parkingLotEntity = parkingLotRepository.findByName(parkingLotName)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format(PARKING_LOT_NAME_NOT_FOUND_ERROR_MESSAGE, parkingLotName)));
+        final UserEntity userEntity = getUserEntity(userEmail);
+        final ParkingLotEntity parkingLotEntity = getParkingLotEntity(parkingLotName);
 
         if (!userEntity.getParkingLots().contains(parkingLotEntity)) {
-            throw new EntityAreNotLinkedException(String.format(ENTITIES_NOT_LINKED));
+            throw new EntityLinkException(String.format(ENTITIES_NOT_LINKED));
         }
 
         userEntity.getParkingLots().remove(parkingLotEntity);
@@ -281,6 +401,18 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         parkingLotRepository.delete(parkingLotEntity);
 
         return new ResponseDto("The parking lot with ID: " + parkingLotId + " and all its related entities has been deleted");
+    }
+
+    private UserEntity getUserEntity(String userEmail) {
+        return userRepository.findByCredential_Email(userEmail)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(USER_EMAIL_NOT_FOUND_ERROR_MESSAGE, userEmail)));
+    }
+
+    private ParkingLotEntity getParkingLotEntity(String parkingLotName) {
+        return parkingLotRepository.findByName(parkingLotName)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(PARKING_LOT_NAME_NOT_FOUND_ERROR_MESSAGE, parkingLotName)));
     }
 
     @Override

@@ -27,7 +27,7 @@ class RegistrationRequestTest {
 
     @Test
     void whenValidRegistrationRequest_noViolations() {
-        RegistrationRequest request = new RegistrationRequest("Test user", "testUser@example.com", "Pass123!", "037312678");
+        RegistrationRequest request = new RegistrationRequest("TestUser", "testUser@example.com", "Pass123!", "037312678");
         Set<ConstraintViolation<RegistrationRequest>> violations = validator.validate(request);
         assertTrue(violations.isEmpty());
     }

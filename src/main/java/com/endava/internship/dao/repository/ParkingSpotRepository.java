@@ -13,7 +13,7 @@ import com.endava.internship.dao.entity.ParkingSpotEntity;
 
 public interface ParkingSpotRepository extends JpaRepository<ParkingSpotEntity, Integer> {
 
-Optional<List<ParkingSpotEntity>> findByParkingLevelId(Integer id);
+    Optional<List<ParkingSpotEntity>> findByParkingLevelId(Integer id);
 
     @Modifying
     @Transactional
@@ -25,7 +25,11 @@ Optional<List<ParkingSpotEntity>> findByParkingLevelId(Integer id);
     @Modifying
     @Transactional
     @Query
-            (value = "DELETE FROM client_Spot ps WHERE ps.spot_id = :spotId",
+            (value = "DELETE FROM client_spot ps WHERE ps.spot_id = :spotId",
                     nativeQuery = true)
     void deleteRelationUserSpotBySpotId(Integer spotId);
-} 
+
+    void deleteParkingSpotEntityById(Integer id);
+
+    List<ParkingSpotEntity> getAllParkingSpotEntitiesByParkingLevelIdOrderByIdDesc(Integer levelId);
+}

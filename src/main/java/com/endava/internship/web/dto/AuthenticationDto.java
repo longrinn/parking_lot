@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class AuthenticationResponse {
+public class AuthenticationDto {
 
     @Schema(example = "custom_email@example.com")
     private String email;

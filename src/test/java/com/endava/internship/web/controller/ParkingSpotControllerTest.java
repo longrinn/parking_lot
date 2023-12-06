@@ -88,7 +88,7 @@ public class ParkingSpotControllerTest {
         when(parkingSpotService.occupyParkingSpot(anyInt(), any(SpotOccupancyRequest.class), any(UserDetails.class)))
                 .thenReturn(parkingSpotDto);
 
-        mockMvc.perform(post("/spot/{spotId}", spotId)
+        mockMvc.perform(post("/spot/link/{id}", spotId)
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .with(user(userDetails)))

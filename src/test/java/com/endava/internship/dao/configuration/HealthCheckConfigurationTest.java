@@ -26,12 +26,11 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("test")
 class HealthCheckConfigurationTest {
 
-    @Mock
-    Connection connection;
     private static final String AVAILABLE = "available";
     private static final String UNAVAILABLE = "unavailable";
     private static final String DATABASE = "database";
-
+    @Mock
+    Connection connection;
     @Value("${spring.datasource.username}")
     private String username;
     @Value("${spring.datasource.password}")

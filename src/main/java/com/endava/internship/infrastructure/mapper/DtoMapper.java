@@ -12,13 +12,13 @@ import com.endava.internship.infrastructure.domain.WorkingTime;
 import com.endava.internship.web.dto.ParkingLevelDetailsDto;
 import com.endava.internship.web.dto.ParkingLotDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
-import com.endava.internship.web.dto.UserUpdatedRoleResponse;
+import com.endava.internship.web.dto.UserUpdatedRoleDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 
 @Mapper(componentModel = "spring")
 public interface DtoMapper {
 
-    UserUpdatedRoleResponse map(User user);
+    UserUpdatedRoleDto map(User user);
 
     Set<WorkingTimeDto> mapWorkingTimes(Set<WorkingTime> workingTime);
 

@@ -13,6 +13,10 @@ public class RegistrationRequest {
 
     @NotBlank(message = "Name can not be blank")
     @Schema(example = "UserName")
+    @Pattern(
+            regexp = "^[a-zA-Z]+$",
+            message = "Name can only contain alphabetic characters"
+    )
     private String name;
 
     @NotBlank(message = "Email can not be blank")

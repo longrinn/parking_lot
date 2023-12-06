@@ -28,11 +28,12 @@ import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.infrastructure.security.JwtUtils;
 import com.endava.internship.infrastructure.security.UserDetailsImpl;
-import com.endava.internship.web.dto.AuthenticationResponse;
+import com.endava.internship.web.dto.AuthenticationDto;
 import com.endava.internship.web.request.AuthenticationRequest;
 import com.endava.internship.web.request.ChangeRoleRequest;
 import com.endava.internship.web.request.RegistrationRequest;
 
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 
 import static java.util.Optional.empty;
@@ -83,7 +84,7 @@ class UserServiceTest {
         when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
         when(jwtUtils.generateToken("user@mail.com")).thenReturn("mockedJwtToken");
 
-        AuthenticationResponse response = userService.registration(request);
+        AuthenticationDto response = userService.registration(request);
 
         verify(bCryptPasswordEncoder).encode("User1!");
         verify(daoMapper).map(any(Credentials.class));
@@ -126,7 +127,7 @@ class UserServiceTest {
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
         when(jwtUtils.generateToken(expectedEmail)).thenReturn("mockedJwtToken");
 
-        AuthenticationResponse response = userService.authentication(request);
+        AuthenticationDto response = userService.authentication(request);
 
         verify(userRepository).findByCredential_Email(expectedEmail);
         verify(authenticationManager).authenticate(any());
@@ -153,7 +154,7 @@ class UserServiceTest {
         ChangeRoleRequest changeRoleRequest = new ChangeRoleRequest("email@.com", "Admin");
         RoleEntity roleEntity = new RoleEntity(1, "User");
         UserEntity userEntity = new UserEntity(1, null, "John", "+37368521164", roleEntity, null, null);
-        User user = new User(1, "name", "+37326548958", new Role(1,"Admin"), null);
+        User user = new User(1, "name", "+37326548958", new Role(1, "Admin"), null);
 
         when(userRepository.findByCredential_Email("email@.com")).thenReturn(Optional.of(userEntity));
         when(roleRepository.findRoleEntityByName("Admin")).thenReturn(Optional.of(new RoleEntity(2, "Admin")));
@@ -211,7 +212,7 @@ class UserServiceTest {
         RoleEntity roleEntity = new RoleEntity(1, "User");
         UserEntity userEntity = new UserEntity(1, null, "John", "+37368521164", roleEntity, null, null);
         CredentialsEntity credentialsEntity = new CredentialsEntity(1, userEntity, "test@example.com", "Password");
-        Role role = new Role(1,"Admin");
+        Role role = new Role(1, "Admin");
         User user = new User(1, "John", "+37368521164", role, null);
 
         userEntity.setCredential(credentialsEntity);
@@ -228,5 +229,15 @@ class UserServiceTest {
         verify(userRepository).findByCredential_Email("test@example.com");
         verify(roleRepository).findRoleEntityByName("Admin");
         verify(userRoleChangeEmailListener).handleUserRoleChangeEvent("test@example.com");
+    }
+
+    @Test
+    void testRegistration_WhenEmailAlreadyExists_ShouldThrowEntityExistsException() {
+        String email = "user@mail.com";
+        RegistrationRequest request = new RegistrationRequest("Name", email, "User1!", "123456789");
+
+        when(userRepository.existsByCredentialEmail(email)).thenReturn(true);
+
+        assertThrows(EntityExistsException.class, () -> userService.registration(request));
     }
 }

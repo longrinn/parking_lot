@@ -12,13 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.endava.internship.infrastructure.service.api.ParkingSpotService;
-import com.endava.internship.infrastructure.service.api.ParkingSpotService;
 import com.endava.internship.web.dto.ParkingSpotDto;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.request.SpotOccupancyRequest;
 import com.endava.internship.web.request.UpdateParkingSpotRequest;
 
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,19 +30,22 @@ public class ParkingSpotController {
 
     private final ParkingSpotService parkingSpotService;
 
+    @Operation(
+            description = "This endpoint is used to update a parking spot"
+    )
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseDto> editParkingSpot(@PathVariable Integer id, @RequestBody UpdateParkingSpotRequest request) {
+    public ResponseEntity<ResponseDto> editParkingSpot(@PathVariable Integer id, @RequestBody @Valid UpdateParkingSpotRequest request) {
         return ResponseEntity.status(OK).body(parkingSpotService.editParkingSpot(id, request));
     }
 
     @Operation(
             description = "This endpoint is used to allow a user to occupy a specific parking spot"
     )
-    @PostMapping("/{spotId}")
-    public ResponseEntity<ParkingSpotDto> occupyParkingSpot(@PathVariable Integer spotId,
-                                                            @RequestBody  @Valid SpotOccupancyRequest request,
+    @PostMapping("/link/{id}")
+    public ResponseEntity<ParkingSpotDto> occupyParkingSpot(@PathVariable Integer id,
+                                                            @RequestBody @Valid SpotOccupancyRequest request,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.status(OK).body(parkingSpotService.occupyParkingSpot(spotId, request, userDetails));
+        return ResponseEntity.status(OK).body(parkingSpotService.occupyParkingSpot(id, request, userDetails));
     }
 
     @Operation(

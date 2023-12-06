@@ -12,7 +12,7 @@ import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.infrastructure.domain.ParkingLevel;
 import com.endava.internship.infrastructure.domain.ParkingSpot;
 import com.endava.internship.infrastructure.domain.User;
-import com.endava.internship.infrastructure.exception.EntityAreNotLinkedException;
+import com.endava.internship.infrastructure.exception.EntityLinkException;
 import com.endava.internship.infrastructure.exception.InvalidRequestParameterException;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.service.api.ParkingSpotService;
@@ -48,7 +48,7 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
                         String.format(PARKING_SPOT_NOT_FOUND_ERROR_MESSAGE, id)));
 
         if (parkingSpotEntity.isAvailable()) {
-            throw new EntityAreNotLinkedException("No client uses this spot, it is not possible to delete a not existing linkage.");
+            throw new EntityLinkException("No client uses this spot, it is not possible to delete a not existing linkage.");
         }
 
         parkingSpotRepository.deleteRelationUserSpotBySpotId(id);
@@ -114,6 +114,6 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
         userRepository.save(daoMapper.map(user));
 
         String parkingSpotName = parkingSpotEntityFinal.getName();
-        return new ParkingSpotDto(spotId, parkingSpotName,true,"New Type");
+        return new ParkingSpotDto(spotId, parkingSpotName, true, "New Type");
     }
 }

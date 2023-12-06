@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.endava.internship.dao.entity.ParkingSpotEntity;
 import com.endava.internship.dao.repository.ParkingSpotRepository;
 import com.endava.internship.infrastructure.domain.ParkingSpot;
-import com.endava.internship.infrastructure.exception.EntityAreNotLinkedException;
+import com.endava.internship.infrastructure.exception.EntityLinkException;
 import com.endava.internship.infrastructure.exception.InvalidRequestParameterException;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.web.dto.ResponseDto;
@@ -112,6 +112,6 @@ public class ParkingSpotServiceTest {
 
         when(parkingSpotRepository.findById(spotId)).thenReturn(of(parkingSpotEntity));
 
-        assertThrows(EntityAreNotLinkedException.class, () -> parkingSpotService.deleteSpotUserLinkage(spotId));
+        assertThrows(EntityLinkException.class, () -> parkingSpotService.deleteSpotUserLinkage(spotId));
     }
 }

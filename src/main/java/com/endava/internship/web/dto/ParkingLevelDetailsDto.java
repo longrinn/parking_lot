@@ -15,7 +15,7 @@ public class ParkingLevelDetailsDto {
     @Schema(example = "1")
     private Integer id;
 
-    @Schema(example ="1")
+    @Schema(example = "1")
     private Integer floor;
 
     @Schema(example = "100")
