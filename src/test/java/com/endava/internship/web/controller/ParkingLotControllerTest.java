@@ -65,8 +65,8 @@ public class ParkingLotControllerTest {
 
     @Test
     void getAllParkingLots_ShouldReturnListOfParkingLots() throws Exception {
-        ParkingLotDetailsDto firstParkingLotDto = new ParkingLotDetailsDto("ParkingLot1", NOON, MIDNIGHT, null, true, 3, 2);
-        ParkingLotDetailsDto secondParkingLotDto = new ParkingLotDetailsDto("ParkingLot2", NOON, MIDNIGHT, null, true, 3, 2);
+        ParkingLotDetailsDto firstParkingLotDto = new ParkingLotDetailsDto(1, "ParkingLot1", NOON, MIDNIGHT, null, true, 3, 2);
+        ParkingLotDetailsDto secondParkingLotDto = new ParkingLotDetailsDto(1, "ParkingLot2", NOON, MIDNIGHT, null, true, 3, 2);
 
         List<ParkingLotDetailsDto> response = Arrays.asList(firstParkingLotDto, secondParkingLotDto);
 

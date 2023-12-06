@@ -296,7 +296,7 @@ class ParkingLotServiceImplTest {
 
         // Dto
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto("Monday");
-        final ParkingLotDetailsDto parkingLotDetailsDto = new ParkingLotDetailsDto(nameOfParkingLot, NOON, NOON, Set.of(workingTimeDto), true, 1, 1);
+        final ParkingLotDetailsDto parkingLotDetailsDto = new ParkingLotDetailsDto(parkingLot.getId(), nameOfParkingLot, NOON, NOON, Set.of(workingTimeDto), true, 1, 1);
 
         when(parkingLotRepository.findAll()).thenReturn(List.of(parkingLotEntity));
         when(daoMapper.map(any(ParkingLotEntity.class))).thenReturn(parkingLot);

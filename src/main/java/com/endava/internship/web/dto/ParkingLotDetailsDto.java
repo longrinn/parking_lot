@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ParkingLotDetailsDto {
 
+    private final Integer id;
     private final String name;
     private final LocalTime startTime;
     private final LocalTime endTime;

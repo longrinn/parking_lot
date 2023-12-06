@@ -212,7 +212,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
                     .flatMap(Collection::stream)
                     .collect(toSet());
 
-            ParkingLotDetailsDto response = new ParkingLotDetailsDto(parkingLot.getName(), parkingLot.getStartTime(), parkingLot.getEndTime(),
+            ParkingLotDetailsDto response = new ParkingLotDetailsDto(parkingLot.getId(), parkingLot.getName(), parkingLot.getStartTime(), parkingLot.getEndTime(),
                     workingTimeDtos, parkingLot.isState(), totalSpots, unavailableSpots);
             parkingLotDetailsDtos.add(response);
         }
