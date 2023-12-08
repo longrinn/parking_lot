@@ -36,7 +36,7 @@ db_migration:
   script:
     - sudo chmod +x mvnw
     - ./mvnw clean package
-    # - java -jar target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war 
+    - java -jar target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war 
     - ./mvnw flyway:clean && ./mvnw flyway:migrate
 
 # tagging:
