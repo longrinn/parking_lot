@@ -1,6 +1,6 @@
 stages:
   # - sonarqube-check
-  - db_migration
+  # - db_migration
   - build_image
   # - tagging
 
@@ -29,15 +29,15 @@ build-backend:
   only:
     - main
 
-db_migration:
-  stage: db_migration
-  image: dmoscalu/ubungres16:latest
-  # before_script:
-  script:
-    - sudo chmod +x mvnw
-    - ./mvnw clean package
-    - java -jar target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war 
-    - ./mvnw flyway:clean && ./mvnw flyway:migrate
+# db_migration:
+#   stage: db_migration
+#   image: dmoscalu/ubungres16:latest
+#   # before_script:
+#   script:
+#     - sudo chmod +x mvnw
+#     - ./mvnw clean package
+#     - java -jar target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war 
+#     - ./mvnw flyway:clean && ./mvnw flyway:migrate
 
 # tagging:
 #   stage: tagging
