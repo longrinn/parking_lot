@@ -3,6 +3,7 @@ package com.endava.internship.infrastructure.mapper;
 import java.util.Set;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.endava.internship.dao.entity.CredentialsEntity;
 import com.endava.internship.dao.entity.ParkingLevelEntity;
@@ -45,4 +46,9 @@ public interface DaoMapper {
     ParkingLevel map(ParkingLevelEntity parkingLevelEntity1);
 
     Set<WorkingTime> map(Set<WorkingTimeEntity> workingTimeEntities);
+
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "parkingLevel", ignore = true)
+    @Mapping(source = "parkingSpotEntity.available", target = "available")
+    ParkingSpot map(ParkingSpotEntity parkingSpotEntity);
 }

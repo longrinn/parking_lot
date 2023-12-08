@@ -93,4 +93,12 @@ public class CustomExceptionHandler {
 
         return ResponseEntity.status(BAD_REQUEST).body(errorDetails);
     }
+
+    @ExceptionHandler(InvalidRequestParameterException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidRequestParameterException(InvalidRequestParameterException ex, WebRequest request) {
+        final ErrorDetails errorDetails = new ErrorDetails(LocalDate.now(), ex.getMessage(),
+                request.getDescription(false));
+
+        return ResponseEntity.status(BAD_REQUEST).body(errorDetails);
+    }
 }

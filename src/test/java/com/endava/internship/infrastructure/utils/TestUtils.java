@@ -13,6 +13,7 @@ public class TestUtils {
     public static final String NON_EXISTENT_USER_EMAIL = "nonexistent_user@example.com";
     public static final String ROLE_USER = "USER";
     public static final String PHONE_NUMBER = "37369583920";
+    public static final Integer SPOT_ID = 1;
 
     public static String getUserEmail(UserDetails userDetails) {
         return getUserFromDetails(userDetails).getCredential().getEmail();
