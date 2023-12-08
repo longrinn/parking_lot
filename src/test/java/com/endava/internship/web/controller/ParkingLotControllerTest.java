@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.infrastructure.security.JwtUtils;
+import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFilter;
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
@@ -48,12 +49,14 @@ public class ParkingLotControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
     @MockBean
     private ParkingLotService parkingLotService;
 
     @MockBean
     private ParkingLotRepository parkingLotRepository;
+
+    @MockBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     @WithMockUser
@@ -108,7 +111,7 @@ public class ParkingLotControllerTest {
     }
 
     @Test
-    void deleteExistingParkingLot_isSuccess() throws Exception {
+    void deleteExistingParkingLot_ShouldReturnStatusOK() throws Exception {
         Integer parkingLotId = 1;
 
         ResponseDto expected = new ResponseDto("The parking lot with ID: " + parkingLotId + " and all its related entities has been deleted");

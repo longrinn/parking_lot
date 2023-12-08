@@ -21,12 +21,13 @@ import com.endava.internship.web.request.SpotOccupancyRequest;
 import com.endava.internship.web.request.UpdateParkingSpotRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -34,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ParkingSpotController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class ParkingSpotControllerTest {
+public class ParkingSpotControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -96,5 +97,19 @@ class ParkingSpotControllerTest {
                 .andReturn();
 
         verify(parkingSpotService).occupyParkingSpot(anyInt(), any(SpotOccupancyRequest.class), any(UserDetails.class));
+    }
+
+    @Test
+    public void deleteLinkageUserSpot_ShouldReturnStatusOK() throws Exception {
+        Integer spotId = 1;
+        ResponseDto responseDto = new ResponseDto("Linkage successfully deleted!");
+
+        when(parkingSpotService.deleteSpotUserLinkage(anyInt())).thenReturn(responseDto);
+
+        mockMvc.perform(delete("/spot/link/" + spotId))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(responseDto)));
+
+        verify(parkingSpotService).deleteSpotUserLinkage(anyInt());
     }
 }

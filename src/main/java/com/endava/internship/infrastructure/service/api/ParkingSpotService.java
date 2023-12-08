@@ -9,6 +9,8 @@ import com.endava.internship.web.request.UpdateParkingSpotRequest;
 
 public interface ParkingSpotService {
 
+    ResponseDto deleteSpotUserLinkage(Integer parkingSpotId);
+
     ResponseDto editParkingSpot(Integer spotId, UpdateParkingSpotRequest updateStateInParkingSpotRequest);
 
     ParkingSpotDto occupyParkingSpot(Integer spotId, SpotOccupancyRequest spotOccupancyRequest, UserDetails userDetails);

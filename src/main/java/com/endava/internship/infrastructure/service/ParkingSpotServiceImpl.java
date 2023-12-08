@@ -12,6 +12,7 @@ import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.infrastructure.domain.ParkingLevel;
 import com.endava.internship.infrastructure.domain.ParkingSpot;
 import com.endava.internship.infrastructure.domain.User;
+import com.endava.internship.infrastructure.exception.EntityAreNotLinkedException;
 import com.endava.internship.infrastructure.exception.InvalidRequestParameterException;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.service.api.ParkingSpotService;
@@ -23,6 +24,7 @@ import com.endava.internship.web.request.UpdateParkingSpotRequest;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import static com.endava.internship.infrastructure.util.ParkingLotConstants.PARKING_SPOT_NOT_FOUND_ERROR_MESSAGE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.SPOT_NOT_FOUND;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.SPOT_UNAVAILABLE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.USER_EMAIL_NOT_FOUND_ERROR_MESSAGE;
@@ -33,12 +35,28 @@ import static java.util.Objects.nonNull;
 public class ParkingSpotServiceImpl implements ParkingSpotService {
 
     private static final String TEMPORARY_CLOSED = "Temporary closed";
-
     private final ParkingSpotRepository parkingSpotRepository;
-
     private final DaoMapper daoMapper;
 
     private final UserRepository userRepository;
+
+    @Override
+    @Transactional
+    public ResponseDto deleteSpotUserLinkage(Integer id) {
+        final ParkingSpotEntity parkingSpotEntity = parkingSpotRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(PARKING_SPOT_NOT_FOUND_ERROR_MESSAGE, id)));
+
+        if (parkingSpotEntity.isAvailable()) {
+            throw new EntityAreNotLinkedException("No client uses this spot, it is not possible to delete a not existing linkage.");
+        }
+
+        parkingSpotRepository.deleteRelationUserSpotBySpotId(id);
+        parkingSpotEntity.setAvailable(true);
+
+
+        return new ResponseDto("Linkage successfully deleted!");
+    }
 
     @Override
     public ResponseDto editParkingSpot(Integer spotId, UpdateParkingSpotRequest spotToUpdate) {

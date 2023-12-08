@@ -20,4 +20,11 @@ public interface ParkingSpotRepository extends JpaRepository<ParkingSpotEntity, 
             (value = "DELETE FROM Client_Spot ps WHERE ps.spot_id IN :spotIds",
                     nativeQuery = true)
     void deleteRelationUserSpotBySpotIds(@Param("spotIds") List<Integer> spotIds);
-}
+
+    @Modifying
+    @Transactional
+    @Query
+            (value = "DELETE FROM client_Spot ps WHERE ps.spot_id = :spotId",
+                    nativeQuery = true)
+    void deleteRelationUserSpotBySpotId(Integer spotId);
+} 
