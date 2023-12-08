@@ -1,28 +1,30 @@
 stages:
-  - sonarqube-check
-  # - db_migration
+  # - sonarqube-check
+  - db_migration
   - build_image
-  - tagging
+  # - tagging
 
-sonarqube-check:
-  stage: sonarqube-check
-  image: maven:3-eclipse-temurin-17
-  variables:
-    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  
-    GIT_DEPTH: "0" 
-  script:
-    - mvn verify sonar:sonar -Dmaven.test.failure.ignore=true
-  allow_failure: true
-  only:
-    - main
-
-# db_migration:
-#   stage: db_migration
-#   image: dmoscalu/pgjdk17:latest
-#   before_script:
-#     - sudo chmod +x mvnw 
+# sonarqube-check:
+#   stage: sonarqube-check
+#   image: maven:3-eclipse-temurin-17
+#   variables:
+#     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  
+#     GIT_DEPTH: "0" 
 #   script:
-#     - pg_ctl start -D /var/lib/postgresql/data && ./mvnw flyway:clean && ./mvnw flyway:migrate
+#     - mvn verify sonar:sonar -Dmaven.test.failure.ignore=true
+#   allow_failure: true
+#   only:
+#     - main
+
+db_migration:
+  stage: db_migration
+  image: dmoscalu/ubungres16:latest
+  # before_script:
+  script:
+    - sudo chmod +x mvnw
+    - ./mvnw clean package
+    - java -jar target/parking-lot-autumn-2023-0.0.1-SNAPSHOT.war 
+    - pg_ctl start -D /var/lib/postgresql/data && ./mvnw flyway:clean && ./mvnw flyway:migrate
 
 build-backend:
   stage: build_image
@@ -38,23 +40,23 @@ build-backend:
     - main
 
 
-tagging:
-  stage: tagging
-  image: rdcib/git:latest
-  before_script:
-    - git remote set-url origin "https://$REPO_TOKEN_NAME:$REPO_ACCESS_TOKEN@gitlab.tool.mddinternship.com/devops/argocd.git"
-    - git config --global user.email "vladislav.pronoza@endava.com"
-    - git config --global user.name "vpronoza"
-    # Reset to remote main branch
-    - git clone https://$REPO_TOKEN_NAME:$REPO_ACCESS_TOKEN@gitlab.tool.mddinternship.com/devops/argocd.git
-    - cd argocd/Parkinglot/Backend/
-  script:
-    #- VERSION=$(cat ${CI_PROJECT_DIR}/project-version | grep -o -E '[0-9]+[.][0-9]+[.][0-9]')
-    - yq -i 'select(di == 3).spec.template.spec.containers[0].image = "'$NEXUS_PL':'$CI_COMMIT_SHA'"' ArgoCD.yaml
-    - yq -i 'select(di == 4).spec.template.spec.containers[0].image = "'$NEXUS_PL':'$CI_COMMIT_SHA'"' ArgoCD.yaml
-    - git add ArgoCD.yaml
-    - git commit -m "Update TagImage to 'CI_COMMIT_SHA'"
-    - git push -o ci.skip origin HEAD:main
-  needs: [build-backend]
-  only:
-    - main
+# tagging:
+#   stage: tagging
+#   image: rdcib/git:latest
+#   before_script:
+#     - git remote set-url origin "https://$REPO_TOKEN_NAME:$REPO_ACCESS_TOKEN@gitlab.tool.mddinternship.com/devops/argocd.git"
+#     - git config --global user.email "vladislav.pronoza@endava.com"
+#     - git config --global user.name "vpronoza"
+#     # Reset to remote main branch
+#     - git clone https://$REPO_TOKEN_NAME:$REPO_ACCESS_TOKEN@gitlab.tool.mddinternship.com/devops/argocd.git
+#     - cd argocd/Parkinglot/Backend/
+#   script:
+#     #- VERSION=$(cat ${CI_PROJECT_DIR}/project-version | grep -o -E '[0-9]+[.][0-9]+[.][0-9]')
+#     - yq -i 'select(di == 3).spec.template.spec.containers[0].image = "'$NEXUS_PL':'$CI_COMMIT_SHA'"' ArgoCD.yaml
+#     - yq -i 'select(di == 4).spec.template.spec.containers[0].image = "'$NEXUS_PL':'$CI_COMMIT_SHA'"' ArgoCD.yaml
+#     - git add ArgoCD.yaml
+#     - git commit -m "Update TagImage to 'CI_COMMIT_SHA'"
+#     - git push -o ci.skip origin HEAD:main
+#   needs: [build-backend]
+#   only:
+#     - main
