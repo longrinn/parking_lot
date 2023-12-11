@@ -2,7 +2,7 @@ stages:
   - sonarqube-check
   # - db_migration
   - build_image
-  # - tagging
+  - tagging
 
 sonarqube-check:
   stage: sonarqube-check
