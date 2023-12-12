@@ -18,6 +18,7 @@ import com.endava.internship.dao.entity.WorkingTimeEntity;
 import com.endava.internship.dao.repository.ParkingLevelRepository;
 import com.endava.internship.dao.repository.ParkingLotRepository;
 import com.endava.internship.dao.repository.ParkingSpotRepository;
+import com.endava.internship.dao.repository.RoleRepository;
 import com.endava.internship.dao.repository.UserRepository;
 import com.endava.internship.dao.repository.WorkingTimeRepository;
 import com.endava.internship.infrastructure.domain.ParkingLevel;
@@ -59,6 +60,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     private final ParkingSpotRepository parkingSpotRepository;
     private final WorkingTimeRepository workingTimeRepository;
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final UserLinkToParkLotListener userLinkToParkLotListener;
     private final DaoMapper daoMapper;
     private final DtoMapper dtoMapper;
@@ -106,7 +108,6 @@ public class ParkingLotServiceImpl implements ParkingLotService {
             for (int i = 1; i <= parkingLevelDto.getTotalSpots(); i++) {
                 ParkingSpot parkingSpot = ParkingSpot.builder()
                         .parkingLevel(fetchedParkingLevelWithID)
-                        .user(null)
                         .type("Regular")
                         .available(true)
                         .build();

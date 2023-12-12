@@ -15,6 +15,7 @@ import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFil
 
 import lombok.RequiredArgsConstructor;
 
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -36,7 +37,8 @@ public class SecurityConfig {
                                 .sessionCreationPolicy(STATELESS)
                 )
                 .authorizeHttpRequests(request -> request.requestMatchers("/registration", "/authentication").permitAll())
-                .authorizeHttpRequests(request -> request.requestMatchers("/parking-lot", "/link-park-lot", "/spot/{id}").hasAuthority("Admin"))
+                .authorizeHttpRequests(request -> request.requestMatchers(PUT, "/spot/{id}").hasAuthority("Admin"))
+                .authorizeHttpRequests(request -> request.requestMatchers("/parking-lot", "/link-park-lot").hasAuthority("Admin"))
                 .authorizeHttpRequests(request -> request.requestMatchers(swaggerWhiteList).permitAll())
                 .authorizeHttpRequests(request -> request.anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

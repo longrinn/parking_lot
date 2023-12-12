@@ -63,7 +63,7 @@ class DaoMapperImplTest {
                 .id(1)
                 .name("User")
                 .phone("123456789")
-                .role(new Role("User"))
+                .role(new Role(2, "User"))
                 .build();
 
         UserEntity userEntity = daoMapper.map(user);
@@ -138,7 +138,7 @@ class DaoMapperImplTest {
                 .id(1)
                 .name("User")
                 .phone("123456789")
-                .role(new Role("User"))
+                .role(new Role(2, "User"))
                 .build();
         ParkingLot parkingLot = ParkingLot.builder()
                 .id(1)
@@ -167,13 +167,26 @@ class DaoMapperImplTest {
     }
 
     @Test
-    void testParkingLevelEntityMap_WhenParkingLevelIsValid_ShouldReturnParkingLevelEntity() {
-        ParkingSpot parkingSpot = ParkingSpot.builder()
-                .available(true)
-                .type("regular")
-                .user(null)
+    void testParkingLevelEntityMap_WhenParkingLevelHasNoSpots_ShouldReturnParkingLevelEntity() {
+        ParkingLevel parkingLevel = ParkingLevel.builder()
+                .id(1)
+                .floor(1)
+                .totalSpots(0)
                 .build();
 
+        ParkingLevelEntity parkingLevelEntity = daoMapper.map(parkingLevel);
+
+        assertEquals(parkingLevel.getFloor(), parkingLevelEntity.getFloor());
+        assertEquals(parkingLevel.getTotalSpots(), parkingLevelEntity.getTotalSpots());
+    }
+
+    @Test
+    void testParkingLevelEntityMap_WhenParkingLevelIsValid_ShouldReturnParkingLevelEntity() {
+        final ParkingSpot parkingSpot = ParkingSpot.builder()
+                .id(1)
+                .name("A-001")
+                .available(true)
+                .build();
         ParkingLevel parkingLevel = ParkingLevel.builder()
                 .id(1)
                 .floor(1)
@@ -185,20 +198,7 @@ class DaoMapperImplTest {
 
         assertEquals(parkingLevel.getFloor(), parkingLevelEntity.getFloor());
         assertEquals(parkingLevel.getTotalSpots(), parkingLevelEntity.getTotalSpots());
-    }
-
-    @Test
-    void testParkingLevelEntityMap_WhenParkingLevelHasNoUser_ShouldReturnParkingLevelEntity() {
-        ParkingLevel parkingLevel = ParkingLevel.builder()
-                .id(1)
-                .floor(1)
-                .totalSpots(1)
-                .build();
-
-        ParkingLevelEntity parkingLevelEntity = daoMapper.map(parkingLevel);
-
-        assertEquals(parkingLevel.getFloor(), parkingLevelEntity.getFloor());
-        assertEquals(parkingLevel.getTotalSpots(), parkingLevelEntity.getTotalSpots());
+        assertEquals(parkingLevel.getParkingSpots().size(), parkingLevelEntity.getParkingSpots().size());
     }
 
     @Test
@@ -213,7 +213,6 @@ class DaoMapperImplTest {
         ParkingSpot parkingSpot = ParkingSpot.builder()
                 .available(true)
                 .type("regular")
-                .user(null)
                 .build();
 
         ParkingSpotEntity parkingSpotEntity = daoMapper.map(parkingSpot);
@@ -301,7 +300,7 @@ class DaoMapperImplTest {
     }
 
     @Test
-    void testParkingLevelMap_WhenParkingLevelEntityIsValid_WithoutParkingSpots_ShouldReturnParkingLevel() {
+    void testParkingLevelMap_WhenParkingLevelEntityHasNoSpots_ShouldReturnParkingLevel() {
         ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
                 .id(1)
                 .floor(1)
@@ -317,7 +316,13 @@ class DaoMapperImplTest {
 
     @Test
     void testParkingLevelMap_WhenParkingLevelEntityIsValid_ShouldReturnParkingLevel() {
-        ParkingSpotEntity parkingSpotEntity = new ParkingSpotEntity(1, null, "A-001", false, "regular", null);
+        ParkingSpotEntity parkingSpotEntity = new ParkingSpotEntity(
+                1,
+                null,
+                "A-001",
+                false,
+                "regular",
+                null);
         ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
                 .id(1)
                 .floor(1)

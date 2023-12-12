@@ -1,11 +1,11 @@
-package com.endava.internship.infrastructure.domain;
+package com.endava.internship.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class Role {
+public class ParkingSpotDto {
 
     private Integer id;
     private String name;

@@ -332,7 +332,7 @@ class ParkingLotServiceImplTest {
                 .parkingLots(new HashSet<>())
                 .build();
 
-        final Role role = new Role("User");
+        final Role role = new Role(2, "User");
         final User user = new User(1, "John", "868521164", role, null);
 
         final ParkingLotEntity parkingLotEntity = ParkingLotEntity.builder()
@@ -412,7 +412,7 @@ class ParkingLotServiceImplTest {
         workingTimeEntity.setNameDay(monday);
 
         // Domain
-        final Role role = new Role("Admin");
+        final Role role = new Role(1, "Admin");
         final User user = User.builder()
                 .id(1)
                 .name("username")

@@ -19,6 +19,7 @@ import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import static org.springframework.http.HttpStatus.CREATED;
@@ -38,7 +39,7 @@ public class ParkingLotController {
             description = "This endpoint is used to create a parking lot"
     )
     @PostMapping("/parking-lot")
-    public ResponseEntity<ResponseDto> createParkingLot(@RequestBody CreateParkingLotRequest createParkingLotRequest) {
+    public ResponseEntity<ResponseDto> createParkingLot(@RequestBody @Valid CreateParkingLotRequest createParkingLotRequest) {
 
         return ResponseEntity.status(CREATED).body(parkingLotService.createParkingLot(createParkingLotRequest));
     }

@@ -13,7 +13,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.endava.internship.dao.repository.ParkingLotRepository;
-import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFilter;
+import com.endava.internship.infrastructure.security.JwtUtils;
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
@@ -43,6 +43,9 @@ public class ParkingLotControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
+    private JwtUtils jwtUtils;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -51,9 +54,6 @@ public class ParkingLotControllerTest {
 
     @MockBean
     private ParkingLotRepository parkingLotRepository;
-
-    @MockBean
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     @WithMockUser
@@ -148,5 +148,4 @@ public class ParkingLotControllerTest {
 
         verify(parkingLotService).createParkingLot(any(CreateParkingLotRequest.class));
     }
-
 }

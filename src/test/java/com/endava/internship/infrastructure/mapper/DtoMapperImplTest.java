@@ -32,7 +32,7 @@ class DtoMapperImplTest {
                 .id(1)
                 .name("User Name")
                 .phone("123456789")
-                .role(new Role("User"))
+                .role(new Role(2,"User"))
                 .build();
 
         UserUpdatedRoleResponse response = dtoMapper.map(user);

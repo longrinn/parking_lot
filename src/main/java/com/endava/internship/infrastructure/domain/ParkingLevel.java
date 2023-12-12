@@ -16,5 +16,4 @@ public class ParkingLevel {
     private Integer floor;
     private Integer totalSpots;
     private Set<ParkingSpot> parkingSpots;
-
 }
