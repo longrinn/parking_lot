@@ -21,6 +21,8 @@ public interface ParkingLotRepository extends JpaRepository<ParkingLotEntity, In
 
     List<ParkingLotEntity> findAll();
 
+    Optional<ParkingLotEntity> findById(Integer parkingLotId);
+
     @Modifying
     @Transactional
     @Query

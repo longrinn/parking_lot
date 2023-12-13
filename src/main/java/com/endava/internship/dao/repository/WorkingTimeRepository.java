@@ -11,4 +11,5 @@ public interface WorkingTimeRepository extends JpaRepository<WorkingTimeEntity, 
 
     Optional<Set<WorkingTimeEntity>> findByParkingLot_Id(Integer id);
 
+    WorkingTimeEntity getWorkingTimeEntityByParkingLotId(Integer id);
 }

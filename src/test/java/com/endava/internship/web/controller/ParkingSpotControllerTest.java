@@ -68,7 +68,7 @@ public class ParkingSpotControllerTest {
     void occupyParkingSpot_ShouldReturnOkStatus() throws Exception {
         Integer spotId = 1;
         SpotOccupancyRequest request = new SpotOccupancyRequest("test@example.com");
-        ParkingSpotDto parkingSpotDto = new ParkingSpotDto(1, "A-001");
+        ParkingSpotDto parkingSpotDto = new ParkingSpotDto(1, "A-001", true, "New Type");
 
         final CredentialsEntity credentialsEntity = CredentialsEntity.builder()
                 .id(1)

@@ -2,6 +2,7 @@ package com.endava.internship.infrastructure.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,12 +34,16 @@ import com.endava.internship.infrastructure.listeners.UserUnlinkFromParkingLotLi
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.mapper.DtoMapper;
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
+import com.endava.internship.web.dto.ParkingLevelDetailsDto;
 import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
+import com.endava.internship.web.dto.ParkingLotDto;
+import com.endava.internship.web.dto.ParkingSpotDtoAdmin;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
+import com.endava.internship.web.request.GetSpecificParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import jakarta.persistence.EntityExistsException;
@@ -47,6 +52,7 @@ import lombok.RequiredArgsConstructor;
 
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.ENTITIES_ALREADY_LINKED;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.ENTITIES_NOT_LINKED;
+import static com.endava.internship.infrastructure.util.ParkingLotConstants.PARKING_LOT_ID_NOT_FOUND_MESSAGE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.PARKING_LOT_NAME_NOT_FOUND_ERROR_MESSAGE;
 import static com.endava.internship.infrastructure.util.ParkingLotConstants.USER_EMAIL_NOT_FOUND_ERROR_MESSAGE;
 import static java.util.stream.Collectors.toSet;
@@ -116,6 +122,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
                 parkingSpotRepository.save(parkingSpotEntity);
             }
             counterOfLevels++;
+
         }
         // Create and Save WorkingTimes
         for (WorkingTimeDto workingTimeDto : createParkingLotRequest.getWorkingTimesDto()) {
@@ -185,7 +192,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
                     .map(ParkingLevelEntity::getParkingSpots)
                     .flatMap(Collection::stream)
                     .map(ParkingSpotEntity::isAvailable)
-                    .filter(val -> !val)
+                    .filter(val -> val)
                     .count();
 
             long totalSpots = parkingLevels.stream()
@@ -274,5 +281,43 @@ public class ParkingLotServiceImpl implements ParkingLotService {
         parkingLotRepository.delete(parkingLotEntity);
 
         return new ResponseDto("The parking lot with ID: " + parkingLotId + " and all its related entities has been deleted");
+    }
+
+    @Override
+    @Transactional
+    public ParkingLotDto getSpecificParkingLot(GetSpecificParkingLotRequest request) {
+
+        final String userRole = userRepository.findByCredential_Email(request.getUserEmail()).get().getRole().getName();
+        final ParkingLotEntity parkingLotEntity = parkingLotRepository.findById(request.getParkingLotId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        String.format(PARKING_LOT_ID_NOT_FOUND_MESSAGE, request.getParkingLotId())));
+        final ParkingLot parkingLot = daoMapper.map(parkingLotEntity);
+        final ParkingLotDto parkingLotDto = dtoMapper.map(parkingLot);
+
+        final Optional<Set<WorkingTimeEntity>> workingTimeEntityOpt = workingTimeRepository.findByParkingLot_Id(request.getParkingLotId());
+        final Set<WorkingTimeEntity> workingTimeEntity = workingTimeEntityOpt.get();
+        final Set<WorkingTime> workingTime = daoMapper.map(workingTimeEntity);
+        final Set<WorkingTimeDto> workingTimeDto = dtoMapper.mapWorkingTimes(workingTime);
+
+        final Set<ParkingLevelEntity> parkingLevelEntities = new HashSet<>(parkingLevelRepository.getByParkingLotId(request.getParkingLotId()));
+        final Set<ParkingLevel> parkingLevels = daoMapper.mapParkingLevels(parkingLevelEntities);
+        final Set<ParkingLevelDetailsDto> parkingLevelDetailsDtos = dtoMapper.map(parkingLevels);
+
+        parkingLotDto.setWorkingTimes(workingTimeDto);
+        parkingLotDto.setParkingLevel(parkingLevelDetailsDtos);
+
+        if ("Admin".equals(userRole)) {
+            for (ParkingLevelDetailsDto parkingLevelDetailsDto : parkingLevelDetailsDtos) {
+                for (ParkingSpotDtoAdmin parkingSpotDtoAdmin : parkingLevelDetailsDto.getParkingSpots()) {
+                    Optional<UserEntity> parkingSpotUser = userRepository.findUserEntityByParkingSpot_Id(parkingSpotDtoAdmin.getId());
+
+                    parkingSpotUser.ifPresent(user -> {
+                        parkingSpotDtoAdmin.setUserId(user.getId());
+                        parkingSpotDtoAdmin.setUserPhone(user.getPhone());
+                    });
+                }
+            }
+        }
+        return parkingLotDto;
     }
 }

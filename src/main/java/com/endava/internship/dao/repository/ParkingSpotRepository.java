@@ -12,7 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.endava.internship.dao.entity.ParkingSpotEntity;
 
 public interface ParkingSpotRepository extends JpaRepository<ParkingSpotEntity, Integer> {
-    Optional<List<ParkingSpotEntity>> findByParkingLevelId(Integer id);
+
+Optional<List<ParkingSpotEntity>> findByParkingLevelId(Integer id);
 
     @Modifying
     @Transactional

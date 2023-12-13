@@ -38,12 +38,16 @@ import com.endava.internship.infrastructure.listeners.UserLinkToParkLotListener;
 import com.endava.internship.infrastructure.listeners.UserUnlinkFromParkingLotListener;
 import com.endava.internship.infrastructure.mapper.DaoMapper;
 import com.endava.internship.infrastructure.mapper.DtoMapper;
+import com.endava.internship.web.dto.ParkingLevelDetailsDto;
 import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
+import com.endava.internship.web.dto.ParkingLotDto;
+import com.endava.internship.web.dto.ParkingSpotDtoAdmin;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
+import com.endava.internship.web.request.GetSpecificParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import jakarta.persistence.EntityExistsException;
@@ -61,6 +65,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -100,7 +105,7 @@ class ParkingLotServiceImplTest {
         final String monday = "Monday";
 
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto(monday);
-        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1);
+        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1, 1);
 
         final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
                 nameOfParkingLot,
@@ -125,7 +130,7 @@ class ParkingLotServiceImplTest {
         final String monday = "Monday";
 
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto(monday);
-        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1);
+        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1, 1);
 
         final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
                 nameOfParkingLot,
@@ -150,7 +155,7 @@ class ParkingLotServiceImplTest {
         final String monday = "Monday";
 
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto(monday);
-        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1);
+        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1, 1);
 
         final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
                 nameOfParkingLot,
@@ -431,7 +436,7 @@ class ParkingLotServiceImplTest {
 
         // Dto
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto("Monday");
-        final ParkingLotDetailsDto parkingLotDetailsDto = new ParkingLotDetailsDto(parkingLot.getId(), nameOfParkingLot, NOON, NOON, Set.of(workingTimeDto), true, 1, 1);
+        final ParkingLotDetailsDto parkingLotDetailsDto = new ParkingLotDetailsDto(parkingLot.getId(), nameOfParkingLot, NOON, NOON, Set.of(workingTimeDto), true, 1, 0);
 
         when(parkingLotRepository.findAll()).thenReturn(List.of(parkingLotEntity));
         when(daoMapper.map(any(ParkingLotEntity.class))).thenReturn(parkingLot);
@@ -451,6 +456,127 @@ class ParkingLotServiceImplTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0)).usingRecursiveComparison().isEqualTo(parkingLotDetailsDto);
+    }
+
+    @Test
+    public void testGetSpecificParkingLot_ShouldReturnParkingLot() {
+        // Constants
+        final GetSpecificParkingLotRequest request = new GetSpecificParkingLotRequest("user@email.com", 1);
+        final String name = "Name";
+        final String address = "Address";
+        final String day = "Monday";
+        final boolean state = true;
+
+        // Entities
+        final CredentialsEntity credentialsEntity = CredentialsEntity.builder()
+                .id(1)
+                .email("user@mail.com")
+                .password("password")
+                .build();
+        final RoleEntity roleEntity = new RoleEntity(1, "Admin");
+        final UserEntity userEntity = UserEntity.builder()
+                .id(1)
+                .credential(credentialsEntity)
+                .name("username")
+                .phone("063251148")
+                .role(roleEntity)
+                .build();
+        final ParkingLotEntity parkingLotEntity = new ParkingLotEntity(1, name, address, NOON, MIDNIGHT, state, Set.of(userEntity));
+        final WorkingTimeEntity workingTimeEntity = new WorkingTimeEntity();
+        workingTimeEntity.setId(1);
+        workingTimeEntity.setNameDay(day);
+        final ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
+                .id(1)
+                .floor(1)
+                .totalSpots(1)
+                .build();
+
+        // Domain
+        final WorkingTime workingTime = WorkingTime.builder()
+                .nameDay(name)
+                .build();
+        final ParkingLevel parkingLevel = ParkingLevel.builder()
+                .id(1)
+                .floor(1)
+                .totalSpots(1)
+                .build();
+        final User user = User.builder()
+                .id(1)
+                .name("username")
+                .phone("068578869")
+                .build();
+        final ParkingLot parkingLot = new ParkingLot(1, name, address, NOON, MIDNIGHT, state, Set.of(user));
+
+        // Dto
+        final WorkingTimeDto workingTimeDto = WorkingTimeDto.builder()
+                .nameDay(name)
+                .build();
+        final Set<ParkingSpotDtoAdmin> parkingSpots = new HashSet<>();
+        final ParkingSpotDtoAdmin parkingSpotDtoAdmin = new ParkingSpotDtoAdmin(1,name,true,"regular", 1, "023154485");
+        parkingSpots.add(parkingSpotDtoAdmin);
+        final ParkingLevelDetailsDto parkingLevelDetailsDto = ParkingLevelDetailsDto.builder()
+                .id(1)
+                .floor(1)
+                .totalSpots(1)
+                .parkingSpots(parkingSpots)
+                .build();
+        final ParkingLotDto parkingLotDto = new ParkingLotDto(1, name, address, NOON, MIDNIGHT, state, Set.of(workingTimeDto), Set.of(parkingLevelDetailsDto));
+
+        when(parkingLotRepository.findById(any())).thenReturn(Optional.of(parkingLotEntity));
+        when(daoMapper.map(any(ParkingLotEntity.class))).thenReturn(parkingLot);
+        when(dtoMapper.map(any(ParkingLot.class))).thenReturn(parkingLotDto);
+        when(workingTimeRepository.findByParkingLot_Id(any())).thenReturn(Optional.of(Set.of(workingTimeEntity)));
+        when(daoMapper.map(ArgumentMatchers.<Set<WorkingTimeEntity>>any())).thenReturn(Set.of(workingTime));
+        when(dtoMapper.mapWorkingTimes(any())).thenReturn(Set.of(workingTimeDto));
+        when(parkingLevelRepository.getByParkingLotId(any())).thenReturn(List.of(parkingLevelEntity));
+        when(daoMapper.map(any(Set.class))).thenReturn(Set.of(parkingLevel));
+        when(dtoMapper.map(any(Set.class))).thenReturn(Set.of(parkingLevelDetailsDto));
+        when(userRepository.findByCredential_Email(any())).thenReturn(Optional.of(userEntity));
+        when(userRepository.findUserEntityByParkingSpot_Id(any())).thenReturn(Optional.of(userEntity));
+
+        final ParkingLotDto result = parkingLotService.getSpecificParkingLot(request);
+
+        verify(parkingLotRepository).findById(any());
+        verify(daoMapper).map(any(ParkingLotEntity.class));
+        verify(dtoMapper).map(any(ParkingLot.class));
+        verify(workingTimeRepository).findByParkingLot_Id(any());
+        verify(daoMapper).map(ArgumentMatchers.<Set<WorkingTimeEntity>>any());
+        verify(dtoMapper).mapWorkingTimes(any());
+        verify(parkingLevelRepository).getByParkingLotId(any());
+        verify(daoMapper).map(any(Set.class));
+        verify(dtoMapper).map(any(Set.class));
+        verify(userRepository).findByCredential_Email(any());
+        verify(userRepository, times(1)).findUserEntityByParkingSpot_Id(any());
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(parkingLotDto);
+    }
+
+    @Test
+    public void testGetSpecificParkingLot_WhenParkingLotNotExisting_ShouldThrowEntityNotFoundException() {
+
+        final GetSpecificParkingLotRequest request = new GetSpecificParkingLotRequest("user@mail.com", 2);
+        final CredentialsEntity credentialsEntity = CredentialsEntity.builder()
+                .id(1)
+                .email("user@mail.com")
+                .password("password")
+                .build();
+        final RoleEntity roleEntity = new RoleEntity(1, "Admin");
+        final UserEntity userEntity = UserEntity.builder()
+                .id(1)
+                .credential(credentialsEntity)
+                .name("username")
+                .phone("063251148")
+                .role(roleEntity)
+                .build();
+        final ParkingLotEntity parkingLotEntity = new ParkingLotEntity(1, "name", "address", NOON, MIDNIGHT, true, Set.of(userEntity));
+
+        when(parkingLotRepository.findById(request.getParkingLotId())).thenReturn(empty());
+        when(userRepository.findByCredential_Email(anyString())).thenReturn(Optional.of(userEntity));
+
+        assertThrows(EntityNotFoundException.class, () -> parkingLotService.getSpecificParkingLot(request));
+
+        verify(parkingLotRepository).findById(any());
+        verify(userRepository).findByCredential_Email(anyString());
     }
 
     @Test

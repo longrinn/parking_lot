@@ -5,9 +5,12 @@ import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.endava.internship.infrastructure.domain.ParkingLevel;
 import com.endava.internship.infrastructure.domain.ParkingLot;
 import com.endava.internship.infrastructure.domain.User;
 import com.endava.internship.infrastructure.domain.WorkingTime;
+import com.endava.internship.web.dto.ParkingLevelDetailsDto;
+import com.endava.internship.web.dto.ParkingLotDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.UserUpdatedRoleResponse;
 import com.endava.internship.web.dto.WorkingTimeDto;
@@ -24,4 +27,10 @@ public interface DtoMapper {
     @Mapping(source = "parkingLot.name", target = "parkingLotName")
     @Mapping(source = "parkingLot.address", target = "parkingLotAddress")
     UserToParkingLotDto map(User user, ParkingLot parkingLot, String email);
+
+    ParkingLotDto map(ParkingLot parkingLot);
+
+    ParkingLevelDetailsDto map(ParkingLevel parkingLevel);
+
+    Set<ParkingLevelDetailsDto> map(Set<ParkingLevel> parkingLevels);
 }

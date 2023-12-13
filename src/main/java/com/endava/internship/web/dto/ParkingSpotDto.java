@@ -1,12 +1,14 @@
 package com.endava.internship.web.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ParkingSpotDto {
 
-    private Integer id;
-    private String name;
+    private final Integer id;
+    private final String name;
+    private final boolean available;
+    private final String type;
 }

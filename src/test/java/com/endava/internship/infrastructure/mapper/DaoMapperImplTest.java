@@ -26,6 +26,7 @@ import com.endava.internship.infrastructure.domain.WorkingTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -374,6 +375,42 @@ class DaoMapperImplTest {
 
         for (WorkingTime workingTime : workingTimes) {
             assertNull(workingTime);
+        }
+    }
+
+    @Test
+    void testSetParkingLevel_WhenSetParkingLevelIsNull_ShouldReturnNullSetWorkingTime() {
+        Set<ParkingLevelEntity> parkingLevelEntities = new HashSet<>();
+        parkingLevelEntities.add(null);
+
+        assertTrue(parkingLevelEntities.contains(null));
+    }
+
+    @Test
+    void testSetParkingLevel_WhenSetParkingLevelSetIsValid_ShouldReturnSetParkingLevel() {
+        ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
+                .id(1)
+                .floor(1)
+                .totalSpots(1)
+                .build();
+
+        Set<ParkingLevel> parkingLevels = daoMapper.mapParkingLevels(Set.of(parkingLevelEntity));
+        ParkingLevel parkingLevel = parkingLevels.iterator().next();
+
+        assertEquals(parkingLevelEntity.getId(), parkingLevel.getId());
+        assertEquals(parkingLevelEntity.getFloor(), parkingLevel.getFloor());
+        assertEquals(parkingLevelEntity.getTotalSpots(), parkingLevel.getTotalSpots());
+    }
+
+    @Test
+    void testSetParkingLevel_WhenSetParkingLevelSetIsNull_ShouldReturnNullSetWorkingTime() {
+        Set<ParkingLevelEntity> parkingLevelEntities = new HashSet<>();
+        parkingLevelEntities.add(null);
+
+        Set<ParkingLevel> parkingLevels = daoMapper.mapParkingLevels(parkingLevelEntities);
+
+        for (ParkingLevel parkingLevel : parkingLevels) {
+            assertNull(parkingLevel);
         }
     }
 }

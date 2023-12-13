@@ -18,10 +18,12 @@ import com.endava.internship.infrastructure.security.filter.JwtAuthenticationFil
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.ParkingLevelDto;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
+import com.endava.internship.web.dto.ParkingLotDto;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
+import com.endava.internship.web.request.GetSpecificParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -111,6 +113,23 @@ public class ParkingLotControllerTest {
     }
 
     @Test
+    void getSpecificParkingLot_ShouldReturnTheParkingLot() throws Exception {
+        final GetSpecificParkingLotRequest request = new GetSpecificParkingLotRequest("user@mail.com", 1);
+        final Integer id = 1;
+        ParkingLotDto response = new ParkingLotDto(1, "Parking1", "address", NOON, MIDNIGHT, true, null, null);
+
+        when(parkingLotService.getSpecificParkingLot(any(GetSpecificParkingLotRequest.class))).thenReturn(response);
+
+        mockMvc.perform(get("/parking-lot")
+                        .contentType(APPLICATION_JSON_VALUE)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(response)));
+
+        verify(parkingLotService).getSpecificParkingLot(any(GetSpecificParkingLotRequest.class));
+    }
+
+    @Test
     void deleteExistingParkingLot_ShouldReturnStatusOK() throws Exception {
         Integer parkingLotId = 1;
 
@@ -127,7 +146,7 @@ public class ParkingLotControllerTest {
     @Test
     void createParkingLot_ShouldReturnCreatedStatus() throws Exception {
         final WorkingTimeDto workingTimeDto = new WorkingTimeDto("Monday");
-        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1);
+        final ParkingLevelDto parkingLevelDto = new ParkingLevelDto(1, 1, 1);
 
         final CreateParkingLotRequest parkingLotRequest = new CreateParkingLotRequest(
                 "Parking Lot From Test",

@@ -10,6 +10,7 @@ public class ParkingLotConstants {
     public static final String PARKING_SPOT_NOT_FOUND_ERROR_MESSAGE = "Parking spot with ID=[%s] was not found.";
     public static final String ENTITIES_ALREADY_LINKED = "These entities are already linked with each other";
     public static final String ENTITIES_NOT_LINKED = "Entities aren't linked";
+    public static final String PARKING_LOT_ID_NOT_FOUND_MESSAGE = "Parking lot with ID=[%s] was not found";
     public static final String SPOT_NOT_FOUND = "Parking spot was not found";
     public static final String SPOT_UNAVAILABLE = "Parking spot is unavailable now";
 }

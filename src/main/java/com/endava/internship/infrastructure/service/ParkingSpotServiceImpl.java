@@ -114,6 +114,6 @@ public class ParkingSpotServiceImpl implements ParkingSpotService {
         userRepository.save(daoMapper.map(user));
 
         String parkingSpotName = parkingSpotEntityFinal.getName();
-        return new ParkingSpotDto(spotId, parkingSpotName);
+        return new ParkingSpotDto(spotId, parkingSpotName,true,"New Type");
     }
 }

@@ -50,7 +50,7 @@ public class ParkingSpotServiceTest {
         updatedSpot.setId(SPOT_ID);
         updatedSpot.setType(spotToUpdate.getType());
 
-        final ParkingSpot parkingSpot = new ParkingSpot(null, null, existingSpot.isAvailable(), "New Type", null, null);
+        final ParkingSpot parkingSpot = new ParkingSpot(1, null, existingSpot.isAvailable(), "New Type", null, null);
 
         when(parkingSpotRepository.findById(SPOT_ID)).thenReturn(of(existingSpot));
         when(daoMapper.map(any(ParkingSpotEntity.class))).thenReturn(parkingSpot);
@@ -69,7 +69,7 @@ public class ParkingSpotServiceTest {
         existingSpot.setId(SPOT_ID);
         existingSpot.setAvailable(false);
 
-        final ParkingSpot parkingSpot = new ParkingSpot(null, null, false, "New type", null, null);
+        final ParkingSpot parkingSpot = new ParkingSpot(1, null, false, null, null, null);
 
         when(daoMapper.map(existingSpot)).thenReturn(parkingSpot);
         when(parkingSpotRepository.findById(SPOT_ID)).thenReturn(of(existingSpot));

@@ -47,6 +47,10 @@ public interface DaoMapper {
 
     Set<WorkingTime> map(Set<WorkingTimeEntity> workingTimeEntities);
 
+    WorkingTime map(WorkingTimeEntity workingTimeEntity);
+
+    Set<ParkingLevel> mapParkingLevels(Set<ParkingLevelEntity> parkingLevelEntities);
+
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "parkingLevel", ignore = true)
     @Mapping(source = "parkingSpotEntity.available", target = "available")

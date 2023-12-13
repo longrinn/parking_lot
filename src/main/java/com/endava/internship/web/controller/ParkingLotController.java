@@ -12,9 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.endava.internship.infrastructure.service.api.ParkingLotService;
 import com.endava.internship.web.dto.ParkingLotDetailsDto;
+import com.endava.internship.web.dto.ParkingLotDto;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.request.CreateParkingLotRequest;
+import com.endava.internship.web.request.GetSpecificParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,5 +76,13 @@ public class ParkingLotController {
     @DeleteMapping("/link-park-lot")
     public ResponseEntity<ResponseDto> unlinkUserFromParkLot(@RequestBody UpdateParkLotLinkRequest request) {
         return ResponseEntity.status(OK).body(parkingLotService.unlinkUserFromParkingLot(request));
+    }
+
+    @Operation(
+            description = "This endpoint is used to get a specific parking lot"
+    )
+    @GetMapping("/parking-lot")
+    public ResponseEntity<ParkingLotDto> getSpecificParkingLot(@RequestBody @Valid GetSpecificParkingLotRequest request) {
+        return ResponseEntity.status(OK).body(parkingLotService.getSpecificParkingLot(request));
     }
 }
