@@ -43,7 +43,6 @@ import com.endava.internship.web.dto.ParkingSpotDtoAdmin;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
-import com.endava.internship.web.request.GetSpecificParkingLotRequest;
 import com.endava.internship.web.request.ParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
@@ -417,21 +416,21 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     @Override
     @Transactional
-    public ParkingLotDto getSpecificParkingLot(GetSpecificParkingLotRequest request) {
+    public ParkingLotDto getSpecificParkingLot(String userEmail, Integer parkingLotId) {
 
-        final String userRole = userRepository.findByCredential_Email(request.getUserEmail()).get().getRole().getName();
-        final ParkingLotEntity parkingLotEntity = parkingLotRepository.findById(request.getParkingLotId())
+        final String userRole = userRepository.findByCredential_Email(userEmail).get().getRole().getName();
+        final ParkingLotEntity parkingLotEntity = parkingLotRepository.findById(parkingLotId)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        String.format(PARKING_LOT_ID_NOT_FOUND_MESSAGE, request.getParkingLotId())));
+                        String.format(PARKING_LOT_ID_NOT_FOUND_MESSAGE, parkingLotId)));
         final ParkingLot parkingLot = daoMapper.map(parkingLotEntity);
         final ParkingLotDto parkingLotDto = dtoMapper.map(parkingLot);
 
-        final Optional<Set<WorkingTimeEntity>> workingTimeEntityOpt = workingTimeRepository.findByParkingLot_Id(request.getParkingLotId());
+        final Optional<Set<WorkingTimeEntity>> workingTimeEntityOpt = workingTimeRepository.findByParkingLot_Id(parkingLotId);
         final Set<WorkingTimeEntity> workingTimeEntity = workingTimeEntityOpt.get();
         final Set<WorkingTime> workingTime = daoMapper.map(workingTimeEntity);
         final Set<WorkingTimeDto> workingTimeDto = dtoMapper.mapWorkingTimes(workingTime);
 
-        final Set<ParkingLevelEntity> parkingLevelEntities = new HashSet<>(parkingLevelRepository.getByParkingLotId(request.getParkingLotId()));
+        final Set<ParkingLevelEntity> parkingLevelEntities = new HashSet<>(parkingLevelRepository.getByParkingLotId(parkingLotId));
         final Set<ParkingLevel> parkingLevels = daoMapper.mapParkingLevels(parkingLevelEntities);
         final Set<ParkingLevelDetailsDto> parkingLevelDetailsDtos = dtoMapper.map(parkingLevels);
 

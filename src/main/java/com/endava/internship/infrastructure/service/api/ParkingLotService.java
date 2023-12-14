@@ -6,7 +6,6 @@ import com.endava.internship.web.dto.ParkingLotDetailsDto;
 import com.endava.internship.web.dto.ParkingLotDto;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
-import com.endava.internship.web.request.GetSpecificParkingLotRequest;
 import com.endava.internship.web.request.ParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
@@ -22,7 +21,7 @@ public interface ParkingLotService {
 
     ResponseDto unlinkUserFromParkingLot(UpdateParkLotLinkRequest updateParkLotLinkRequest);
 
-    ParkingLotDto getSpecificParkingLot(GetSpecificParkingLotRequest request);
+    ParkingLotDto getSpecificParkingLot(String userEmail, Integer parkingLotId);
 
     ResponseDto deleteParkingLot(Integer parkingLotId);
 }

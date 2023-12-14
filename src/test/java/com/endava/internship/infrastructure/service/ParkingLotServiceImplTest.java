@@ -46,7 +46,6 @@ import com.endava.internship.web.dto.ParkingSpotDtoAdmin;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
-import com.endava.internship.web.request.GetSpecificParkingLotRequest;
 import com.endava.internship.web.request.ParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 
@@ -459,7 +458,8 @@ class ParkingLotServiceImplTest {
     @Test
     public void testGetSpecificParkingLot_ShouldReturnParkingLot() {
         // Constants
-        final GetSpecificParkingLotRequest request = new GetSpecificParkingLotRequest("user@email.com", 1);
+        final String userEmail = "user@mail.com";
+        final Integer parkingLotId = 1;
         final String name = "Name";
         final String address = "Address";
         final String day = "Monday";
@@ -532,7 +532,7 @@ class ParkingLotServiceImplTest {
         when(userRepository.findByCredential_Email(any())).thenReturn(Optional.of(userEntity));
         when(userRepository.findUserEntityByParkingSpot_Id(any())).thenReturn(Optional.of(userEntity));
 
-        final ParkingLotDto result = parkingLotService.getSpecificParkingLot(request);
+        final ParkingLotDto result = parkingLotService.getSpecificParkingLot(userEmail, parkingLotId);
 
         verify(parkingLotRepository).findById(any());
         verify(daoMapper).map(any(ParkingLotEntity.class));
@@ -552,7 +552,8 @@ class ParkingLotServiceImplTest {
     @Test
     public void testGetSpecificParkingLot_WhenParkingLotNotExisting_ShouldThrowEntityNotFoundException() {
 
-        final GetSpecificParkingLotRequest request = new GetSpecificParkingLotRequest("user@mail.com", 2);
+        final String userEmail = "user@mail.com";
+        final Integer parkingLotId = 2;
         final CredentialsEntity credentialsEntity = CredentialsEntity.builder()
                 .id(1)
                 .email("user@mail.com")
@@ -568,10 +569,10 @@ class ParkingLotServiceImplTest {
                 .build();
         final ParkingLotEntity parkingLotEntity = new ParkingLotEntity(1, "name", "address", NOON, MIDNIGHT, true, Set.of(userEntity));
 
-        when(parkingLotRepository.findById(request.getParkingLotId())).thenReturn(empty());
+        when(parkingLotRepository.findById(parkingLotId)).thenReturn(empty());
         when(userRepository.findByCredential_Email(anyString())).thenReturn(Optional.of(userEntity));
 
-        assertThrows(EntityNotFoundException.class, () -> parkingLotService.getSpecificParkingLot(request));
+        assertThrows(EntityNotFoundException.class, () -> parkingLotService.getSpecificParkingLot(userEmail, parkingLotId));
 
         verify(parkingLotRepository).findById(any());
         verify(userRepository).findByCredential_Email(anyString());

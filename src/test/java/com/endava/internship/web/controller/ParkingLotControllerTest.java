@@ -23,7 +23,6 @@ import com.endava.internship.web.dto.ParkingLotDto;
 import com.endava.internship.web.dto.ResponseDto;
 import com.endava.internship.web.dto.UserToParkingLotDto;
 import com.endava.internship.web.dto.WorkingTimeDto;
-import com.endava.internship.web.request.GetSpecificParkingLotRequest;
 import com.endava.internship.web.request.ParkingLotRequest;
 import com.endava.internship.web.request.UpdateParkLotLinkRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +31,7 @@ import static java.time.LocalTime.MIDNIGHT;
 import static java.time.LocalTime.NOON;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -117,19 +117,21 @@ public class ParkingLotControllerTest {
 
     @Test
     void getSpecificParkingLot_ShouldReturnTheParkingLot() throws Exception {
-        final GetSpecificParkingLotRequest request = new GetSpecificParkingLotRequest("user@mail.com", 1);
+        final String userEmail = "user@mail.com";
+        final Integer parkingLotId = 1;
         final Integer id = 1;
         ParkingLotDto response = new ParkingLotDto(1, "Parking1", "address", NOON, MIDNIGHT, true, null, null);
 
-        when(parkingLotService.getSpecificParkingLot(any(GetSpecificParkingLotRequest.class))).thenReturn(response);
+        when(parkingLotService.getSpecificParkingLot(anyString(), anyInt())).thenReturn(response);
 
         mockMvc.perform(get("/parking-lot")
-                        .contentType(APPLICATION_JSON_VALUE)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .param("userEmail", userEmail)
+                        .param("parkingLotId", String.valueOf(parkingLotId))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(response)));
 
-        verify(parkingLotService).getSpecificParkingLot(any(GetSpecificParkingLotRequest.class));
+        verify(parkingLotService).getSpecificParkingLot(anyString(), anyInt());
     }
 
     @Test
