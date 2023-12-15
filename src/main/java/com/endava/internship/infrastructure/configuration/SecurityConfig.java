@@ -38,7 +38,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(request -> request.requestMatchers("/registration", "/authentication").permitAll())
                 .authorizeHttpRequests(request -> request.requestMatchers(PUT, "/spot/{id}").hasAuthority("Admin"))
-                .authorizeHttpRequests(request -> request.requestMatchers("/parking-lot", "/link-park-lot").hasAuthority("Admin"))
+                .authorizeHttpRequests(request -> request.requestMatchers("/parking-lot","/parking-lot/{id}", "/link-park-lot").hasAuthority("Admin"))
                 .authorizeHttpRequests(request -> request.requestMatchers(swaggerWhiteList).permitAll())
                 .authorizeHttpRequests(request -> request.anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
