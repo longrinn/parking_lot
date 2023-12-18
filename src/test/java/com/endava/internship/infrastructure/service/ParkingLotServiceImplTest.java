@@ -402,7 +402,7 @@ class ParkingLotServiceImplTest {
                 .role(roleEntity)
                 .build();
         final ParkingLotEntity parkingLotEntity = new ParkingLotEntity(1, nameOfParkingLot, addressOfParkingLot, NOON, MIDNIGHT, true, Set.of(userEntity));
-        final ParkingSpotEntity parkingSpotEntity = new ParkingSpotEntity(1, null, "1spot", false, "regular", userEntity);
+        final ParkingSpotEntity parkingSpotEntity = new ParkingSpotEntity(1, null, "1spot", true, "regular", userEntity);
         final ParkingLevelEntity parkingLevelEntity = ParkingLevelEntity.builder()
                 .id(1)
                 .floor(1)
