@@ -285,7 +285,7 @@ public class ParkingLotServiceImpl implements ParkingLotService {
                     .map(ParkingLevelEntity::getParkingSpots)
                     .flatMap(Collection::stream)
                     .map(ParkingSpotEntity::isAvailable)
-                    .filter(val -> val)
+                    .filter(val -> !val)
                     .count();
 
             long totalSpots = parkingLevels.stream()
