@@ -7,7 +7,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class ParkingLotApplicationTests {
+class ParkingLotApplicationIT {
 
     @Test
     void testContextLoader() {
